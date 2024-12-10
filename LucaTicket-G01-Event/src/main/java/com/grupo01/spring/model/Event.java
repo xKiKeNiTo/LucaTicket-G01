@@ -1,4 +1,4 @@
-package model;
+package com.grupo01.spring.model;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
