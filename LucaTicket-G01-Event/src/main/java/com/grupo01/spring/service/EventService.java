@@ -36,7 +36,7 @@ public class EventService {
 	 * @param request DTO de solicitud.
 	 * @return Entidad Event.
 	 */
-	private Event mapToEntity(EventRequest request) {
+	Event mapToEntity(EventRequest request) {
 		Event event = new Event();
 		event.setNombre(request.getNombre());
 		event.setDescripcion(request.getDescripcion());
@@ -56,7 +56,7 @@ public class EventService {
 	 * @param event Entidad Event.
 	 * @return DTO EventResponse.
 	 */
-	private EventResponse mapToResponse(Event event) {
+	EventResponse mapToResponse(Event event) {
 		EventResponse response = new EventResponse();
 		response.setId(event.getId());
 		response.setNombre(event.getNombre());
