@@ -9,153 +9,150 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.math.BigDecimal;
-import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
- *  Clase Event Modelo con constructor, getters, setters y toString
+ * Clase Event Modelo con constructor, getters, setters y toString
  *
  * @version 1
  * @author Moha
  */
 
 @EntityScan
-@Table(name  = "events")
+@Table(name = "events")
 public class Event {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private long id;
 
-    @NotNull(message = "El nombre del evento no puede estar vacío")
-    private String nombre;
+	@NotNull(message = "El nombre del evento no puede estar vacío")
+	private String nombre;
 
-    private String descripcion;
+	private String descripcion;
 
-    @NotNull(message = "La fecha del evento no puede estar vacía")
-    private Date fecha_evento;
+	@NotNull(message = "La fecha del evento no puede estar vacía")
+	private LocalDate fecha_evento;
 
-    @NotNull(message = "La hora del evento no puede estar vacía")
-    private Time hora_evento ;
+	@NotNull(message = "La hora del evento no puede estar vacía")
+	private LocalTime hora_evento;
 
-    @NotNull(message = "El precio mínimo del evento no puede estar vacío")
-    private BigDecimal precio_minimo;
+	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
+	private BigDecimal precio_minimo;
 
-    @NotNull(message = "El precio máximo del evento no puede estar vacío")
-    private BigDecimal precio_maximo;
+	@NotNull(message = "El precio máximo del evento no puede estar vacío")
+	private BigDecimal precio_maximo;
 
-    @NotNull(message = "La localidad del evento no puede estar vacía")
-    private String localidad;
+	@NotNull(message = "La localidad del evento no puede estar vacía")
+	private Localidad localidad;
 
-    private String nombre_recinto;
+	private String nombre_recinto;
 
-    private String genero_musical;
+	private String genero_musical;
 
-    public Event(long id, String nombre, String descripcion, Date fecha_evento, Time hora_evento, BigDecimal precio_minimo, BigDecimal precio_maximo, String localidad, String nombre_recinto, String genero_musical) {
-        this.id = id;
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.fecha_evento = fecha_evento;
-        this.hora_evento = hora_evento;
-        this.precio_minimo = precio_minimo;
-        this.precio_maximo = precio_maximo;
-        this.localidad = localidad;
-        this.nombre_recinto = nombre_recinto;
-        this.genero_musical = genero_musical;
-    }
+	public Event() {
+	}
 
-    public long getId() {
-        return id;
-    }
+	public Event(long id, String nombre, String descripcion, LocalDate fecha_evento, LocalTime hora_evento,
+			BigDecimal precio_minimo, BigDecimal precio_maximo, Localidad localidad, String nombre_recinto,
+			String genero_musical) {
+		this.id = id;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.fecha_evento = fecha_evento;
+		this.hora_evento = hora_evento;
+		this.precio_minimo = precio_minimo;
+		this.precio_maximo = precio_maximo;
+		this.localidad = localidad;
+		this.nombre_recinto = nombre_recinto;
+		this.genero_musical = genero_musical;
+	}
 
-    public void setId(long id) {
-        this.id = id;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public String getNombre() {
-        return nombre;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+	public String getNombre() {
+		return nombre;
+	}
 
-    public String getDescripcion() {
-        return descripcion;
-    }
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+	public String getDescripcion() {
+		return descripcion;
+	}
 
-    public Date getFecha_evento() {
-        return fecha_evento;
-    }
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
 
-    public void setFecha_evento(Date fecha_evento) {
-        this.fecha_evento = fecha_evento;
-    }
+	public LocalDate getFecha_evento() {
+		return fecha_evento;
+	}
 
-    public Time getHora_evento() {
-        return hora_evento;
-    }
+	public void setFecha_evento(LocalDate fecha_evento) {
+		this.fecha_evento = fecha_evento;
+	}
 
-    public void setHora_evento(Time hora_evento) {
-        this.hora_evento = hora_evento;
-    }
+	public LocalTime getHora_evento() {
+		return hora_evento;
+	}
 
-    public BigDecimal getPrecio_minimo() {
-        return precio_minimo;
-    }
+	public void setHora_evento(LocalTime hora_evento) {
+		this.hora_evento = hora_evento;
+	}
 
-    public void setPrecio_minimo(BigDecimal precio_minimo) {
-        this.precio_minimo = precio_minimo;
-    }
+	public BigDecimal getPrecio_minimo() {
+		return precio_minimo;
+	}
 
-    public BigDecimal getPrecio_maximo() {
-        return precio_maximo;
-    }
+	public void setPrecio_minimo(BigDecimal precio_minimo) {
+		this.precio_minimo = precio_minimo;
+	}
 
-    public void setPrecio_maximo(BigDecimal precio_maximo) {
-        this.precio_maximo = precio_maximo;
-    }
+	public BigDecimal getPrecio_maximo() {
+		return precio_maximo;
+	}
 
-    public String getLocalidad() {
-        return localidad;
-    }
+	public void setPrecio_maximo(BigDecimal precio_maximo) {
+		this.precio_maximo = precio_maximo;
+	}
 
-    public void setLocalidad(String localidad) {
-        this.localidad = localidad;
-    }
+	public Localidad getLocalidad() {
+		return localidad;
+	}
 
-    public String getNombre_recinto() {
-        return nombre_recinto;
-    }
+	public void setLocalidad(Localidad localidad) {
+		this.localidad = localidad;
+	}
 
-    public void setNombre_recinto(String nombre_recinto) {
-        this.nombre_recinto = nombre_recinto;
-    }
+	public String getNombre_recinto() {
+		return nombre_recinto;
+	}
 
-    public String getGenero_musical() {
-        return genero_musical;
-    }
+	public void setNombre_recinto(String nombre_recinto) {
+		this.nombre_recinto = nombre_recinto;
+	}
 
-    public void setGenero_musical(String genero_musical) {
-        this.genero_musical = genero_musical;
-    }
+	public String getGenero_musical() {
+		return genero_musical;
+	}
 
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", nombre='" + nombre + '\'' +
-                ", descripcion='" + descripcion + '\'' +
-                ", fecha_evento=" + fecha_evento +
-                ", hora_evento=" + hora_evento +
-                ", precio_minimo=" + precio_minimo +
-                ", precio_maximo=" + precio_maximo +
-                ", localidad='" + localidad + '\'' +
-                ", nombre_recinto='" + nombre_recinto + '\'' +
-                ", genero_musical='" + genero_musical + '\'' +
-                '}';
-    }
+	public void setGenero_musical(String genero_musical) {
+		this.genero_musical = genero_musical;
+	}
+
+	@Override
+	public String toString() {
+		return "Event{" + "id=" + id + ", nombre='" + nombre + '\'' + ", descripcion='" + descripcion + '\''
+				+ ", fecha_evento=" + fecha_evento + ", hora_evento=" + hora_evento + ", precio_minimo=" + precio_minimo
+				+ ", precio_maximo=" + precio_maximo + ", localidad='" + localidad + '\'' + ", nombre_recinto='"
+				+ nombre_recinto + '\'' + ", genero_musical='" + genero_musical + '\'' + '}';
+	}
 }
