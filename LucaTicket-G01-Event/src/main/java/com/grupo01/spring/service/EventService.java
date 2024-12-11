@@ -1,10 +1,14 @@
 package com.grupo01.spring.service;
 
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
 import com.grupo01.spring.model.Event;
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.repository.EventDao;
 
+@Service
 public class EventService {
 
 	private final EventDao eventDao;
@@ -19,6 +23,7 @@ public class EventService {
 	 * @param eventRequest DTO con los datos del evento a crear.
 	 * @return EventResponse DTO con los datos del evento creado.
 	 */
+	@Transactional
 	public EventResponse save(EventRequest eventRequest) {
 		// Convertir EventRequest a la entidad Event
 		Event event = mapToEntity(eventRequest);

@@ -1,16 +1,12 @@
 package com.grupo01.spring.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 /**
  * Clase Event Modelo con constructor, getters, setters y toString
@@ -19,12 +15,12 @@ import java.time.LocalTime;
  * @author Moha
  */
 
-@EntityScan
+@Entity
 @Table(name = "events")
 public class Event {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
-	private long id;
+	private UUID id;
 
 	@NotNull(message = "El nombre del evento no puede estar vacío")
 	private String nombre;
@@ -53,7 +49,7 @@ public class Event {
 	public Event() {
 	}
 
-	public Event(long id, String nombre, String descripcion, LocalDate fecha_evento, LocalTime hora_evento,
+	public Event(UUID id, String nombre, String descripcion, LocalDate fecha_evento, LocalTime hora_evento,
 			BigDecimal precio_minimo, BigDecimal precio_maximo, Localidad localidad, String nombre_recinto,
 			String genero_musical) {
 		this.id = id;
@@ -68,11 +64,11 @@ public class Event {
 		this.genero_musical = genero_musical;
 	}
 
-	public long getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

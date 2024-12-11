@@ -43,9 +43,9 @@ class EventServiceTest {
 		request.setGeneroMusica("Jazz");
 
 		Event event = new Event();
-		event.setId(1L);
+		event.setId(null);
 		event.setNombre("Concierto de Jazz");
-
+ 
 		// Configurar mocks
 		when(eventDao.save(any(Event.class))).thenReturn(event);
 
@@ -85,7 +85,7 @@ class EventServiceTest {
 	@Test
 	void debeMapearEntityToRequest() {
 		// Datos de prueba
-		Event event = new Event(1L, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
+		Event event = new Event(null, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
 				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Albacete,
 				"Wanda Metropolitano", "Rock");
 

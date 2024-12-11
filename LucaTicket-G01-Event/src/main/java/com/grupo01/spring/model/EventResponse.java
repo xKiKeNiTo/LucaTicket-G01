@@ -2,19 +2,24 @@ package com.grupo01.spring.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class EventResponse implements Serializable {
 
 	/**
 	 * 
 	 */
+	public EventResponse() {
+	}
+
+	public EventResponse(String message) {
+	}
 
 	private static final long serialVersionUID = 2L;
 
-	private Long id;
+	private UUID id;
 	private String nombre;
 	private String descripcion;
 	private LocalDate fechaEvento;
@@ -25,11 +30,11 @@ public class EventResponse implements Serializable {
 	private String nombreRecinto;
 	private String generoMusica;
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
