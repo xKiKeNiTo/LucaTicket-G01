@@ -1,5 +1,6 @@
 package com.grupo01.spring.controller;
 
+import com.grupo01.spring.model.Event;
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.service.EventService;
@@ -7,10 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  *  Controlador REST para la gestion de eventos
@@ -23,6 +23,13 @@ public class EventController {
 
     @Autowired
     private EventService eventService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Event>> obtenerTodosEventos() {
+        List<Event> eventos = eventService.findAll();
+
+        return ResponseEntity.ok(eventos);
+    }
 
     /**
      * Guarda un evento en la base de datos.
