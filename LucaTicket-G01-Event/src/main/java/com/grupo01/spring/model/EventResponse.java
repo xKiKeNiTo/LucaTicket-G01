@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class EventResponse implements Serializable {
 
@@ -18,7 +19,7 @@ public class EventResponse implements Serializable {
 
 	private static final long serialVersionUID = 2L;
 
-	private long id;
+	private UUID id;
 	private String nombre;
 	private String descripcion;
 	private LocalDate fechaEvento;
@@ -29,11 +30,11 @@ public class EventResponse implements Serializable {
 	private String nombreRecinto;
 	private String generoMusica;
 
-	public long getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
