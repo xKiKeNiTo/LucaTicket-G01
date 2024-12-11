@@ -20,14 +20,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.grupo01.spring.model.EventResponse;
-import com.grupo01.spring.model.Event;
-import com.grupo01.spring.model.EventRequest;
 
 import com.grupo01.spring.model.Localidad;
 import com.grupo01.spring.service.EventService;
 
 @WebMvcTest(EventController.class)
-public class EventControllerTest {
+public class EventControllerMockTest {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -69,46 +67,26 @@ public class EventControllerTest {
 	@Test
 	public void debeLlamarServicioEventosCuandoLlamoEndpoint() throws Exception {
 		List<EventResponse> events = Arrays.asList(
-		        new EventResponse(
-		            UUID.randomUUID(),
-		            "Concierto de Rock",
-		            "Un gran concierto",
-		            LocalDate.of(2024, 12, 15),
-		            LocalTime.of(20, 30),
-		            new BigDecimal("50.00"),
-		            new BigDecimal("20.00"),
-		            Localidad.AlcalaDeHenares,
-		            "Recinto A",
-		            "Rock"
-		        ),
-		        new EventResponse(
-		            UUID.randomUUID(),
-		            "Festival de Jazz",
-		            "Un festival de música jazz",
-		            LocalDate.of(2024, 12, 20),
-		            LocalTime.of(18, 0),
-		            new BigDecimal("60.00"),
-		            new BigDecimal("25.00"),
-		            Localidad.ACoruna,
-		            "Recinto B",
-		            "Jazz"
-		        )
-		    );
+				new EventResponse(UUID.randomUUID(), "Concierto de Rock", "Un gran concierto",
+						LocalDate.of(2024, 12, 15), LocalTime.of(20, 30), new BigDecimal("50.00"),
+						new BigDecimal("20.00"), Localidad.AlcalaDeHenares, "Recinto A", "Rock"),
+				new EventResponse(UUID.randomUUID(), "Festival de Jazz", "Un festival de música jazz",
+						LocalDate.of(2024, 12, 20), LocalTime.of(18, 0), new BigDecimal("60.00"),
+						new BigDecimal("25.00"), Localidad.ACoruna, "Recinto B", "Jazz"));
 
-	    // Configurar el mock para que cuando se llame a findAll(), devuelva la lista de eventos
-	    when(eventService.findAll()).thenReturn(events);
+		// Configurar el mock para que cuando se llame a findAll(), devuelva la lista de
+		// eventos
+		when(eventService.findAll()).thenReturn(events);
 
-	    // Realizar la solicitud GET al endpoint /eventos
-	    mockMvc.perform(get("/eventos/all"))
-	        .andExpect(status().isOk())  
-	        .andExpect(jsonPath("$.length()").value(2))  
-	        .andExpect(jsonPath("$[0].nombre").value("Concierto de Rock"))  
-	        .andExpect(jsonPath("$[1].nombre").value("Festival de Jazz"));  
+		// Realizar la solicitud GET al endpoint /eventos
+		mockMvc.perform(get("/eventos/all")).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
+				.andExpect(jsonPath("$[0].nombre").value("Concierto de Rock"))
+				.andExpect(jsonPath("$[1].nombre").value("Festival de Jazz"));
 
-	    // Verificar que el servicio findAll() fue llamado exactamente una vez
-	    verify(eventService, times(1)).findAll();
+		// Verificar que el servicio findAll() fue llamado exactamente una vez
+		verify(eventService, times(1)).findAll();
 	}
-	
+
 	@Test
 	public void debeDevolverListaDeEventosCorrectamente() throws Exception {
 		// Configurar datos de prueba
