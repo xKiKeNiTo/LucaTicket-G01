@@ -8,6 +8,8 @@ import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.repository.EventDao;
 
+import java.util.List;
+
 @Service
 public class EventService {
 
@@ -15,6 +17,13 @@ public class EventService {
 
 	public EventService(EventDao eventDao) {
 		this.eventDao = eventDao;
+	}
+
+	public List<EventResponse> findAll() {
+	    // Convierte cada entidad Event en un DTO EventResponse
+	    return eventDao.findAll().stream()
+	            .map(this::mapToResponse)
+	            .toList();
 	}
 
 	/**
