@@ -19,9 +19,13 @@ public class EventService {
 		this.eventDao = eventDao;
 	}
 
-	public List<Event> findAll() {
-		return eventDao.findAll();
+	public List<EventResponse> findAll() {
+	    // Convierte cada entidad Event en un DTO EventResponse
+	    return eventDao.findAll().stream()
+	            .map(this::mapToResponse)
+	            .toList();
 	}
+
 	/**
 	 * Guarda un nuevo evento en la base de datos.
 	 *
