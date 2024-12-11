@@ -1,7 +1,15 @@
 package com.grupo01.spring.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
@@ -10,6 +18,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.grupo01.spring.model.EventResponse;
+import com.grupo01.spring.model.EventRequest;
+import com.grupo01.spring.model.Localidad;
 import com.grupo01.spring.service.EventService;
 
 @WebMvcTest(EventController.class)
@@ -47,5 +58,27 @@ public class EventControllerTest {
 	        .andExpect(jsonPath("$.errors[?(@.field == 'nombre' && @.message == 'El nombre del evento no puede estar vacío')]").exists())
 	        .andExpect(jsonPath("$.errors[?(@.field == 'precioMinimo' && @.message == 'El precio mínimo del evento no puede estar vacío')]").exists())
 	        .andExpect(jsonPath("$.errors[?(@.field == 'precioMaximo' && @.message == 'El precio máximo del evento no puede estar vacío')]").exists());
+	}
+	
+	/**
+	 * Prueba que devuelve un error 400 si se le pasan datos de entrada inválidos para Event.
+	 *
+	 * @throws Exception Si ocurre un error durante la solicitud.
+	 */
+	@Test
+	public void debeLlamarServicioEventosCuandoLlamoEndpint() throws Exception {
+		List<Event> events = Arrays.asList(
+				new Event("Concierto de Rock", "Un gran concierto", LocalDate.of(2024, 12, 15),
+		                LocalTime.of(20, 30), new BigDecimal("50.00"), new BigDecimal("20.00"), Localidad.ACoruna
+		            ),
+		            new Event("Festival de Jazz", "Un festival de música jazz", LocalDate.of(2024, 12, 20),
+		                LocalTime.of(18, 0), new BigDecimal("60.00"), new BigDecimal("25.00"), Localidad.Alcorcon
+		            );
+
+		when(eventService.findAll()).thenReturn(events);
+
+		mockMvc.perform(get("/eventos")).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2));
+
+		verify(eventService, times(1)).findAll();
 	}
 }
