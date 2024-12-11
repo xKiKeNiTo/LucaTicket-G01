@@ -6,6 +6,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
+
 public class EventResponse implements Serializable {
 
 	/**
@@ -19,15 +24,32 @@ public class EventResponse implements Serializable {
 
 	private static final long serialVersionUID = 2L;
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
+
+	@NotNull(message = "El nombre del evento no puede estar vacío")
 	private String nombre;
+
 	private String descripcion;
+
+	@NotNull(message = "La fecha del evento no puede estar vacía")
 	private LocalDate fechaEvento;
+
+	@NotNull(message = "La hora del evento no puede estar vacía")
 	private LocalTime horaEvento;
+
+	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
 	private BigDecimal precioMaximo;
+
+	@NotNull(message = "El precio máximo del evento no puede estar vacío")
 	private BigDecimal precioMinimo;
+
+	@NotNull(message = "La localidad del evento no puede estar vacía")
 	private Localidad localidad;
+
 	private String nombreRecinto;
+
 	private String generoMusica;
 
 	public UUID getId() {
