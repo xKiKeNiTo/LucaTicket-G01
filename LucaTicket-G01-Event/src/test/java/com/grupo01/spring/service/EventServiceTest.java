@@ -11,6 +11,8 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,5 +99,44 @@ class EventServiceTest {
 		assertEquals(Localidad.Madrid, response.getLocalidad());
 		assertEquals(LocalDate.of(2024, 12, 25), response.getFechaEvento());
 		assertEquals(LocalTime.of(20, 0), response.getHoraEvento());
+	}
+
+	@Test
+	void debeListarEventosCorrectamente() {
+		// Configurar datos de prueba
+		Event evento1 = new Event();
+		evento1.setId(UUID.randomUUID());
+		evento1.setNombre("Concierto de Rock");
+		evento1.setDescripcion("Evento musical en vivo");
+		evento1.setFecha_evento(LocalDate.of(2024, 12, 15));
+		evento1.setHora_evento(LocalTime.of(20, 0));
+		evento1.setPrecio_minimo(BigDecimal.valueOf(50));
+		evento1.setPrecio_maximo(BigDecimal.valueOf(120));
+		evento1.setLocalidad(Localidad.Madrid);
+		evento1.setNombre_recinto("Wanda Metropolitano");
+		evento1.setGenero_musical("Rock");
+
+		Event evento2 = new Event();
+		evento2.setId(UUID.randomUUID());
+		evento2.setNombre("Festival de Jazz");
+		evento2.setDescripcion("Evento musical al aire libre");
+		evento2.setFecha_evento(LocalDate.of(2024, 6, 10));
+		evento2.setHora_evento(LocalTime.of(18, 0));
+		evento2.setPrecio_minimo(BigDecimal.valueOf(30));
+		evento2.setPrecio_maximo(BigDecimal.valueOf(100));
+		evento2.setLocalidad(Localidad.Barcelona);
+		evento2.setNombre_recinto("Parque de la Música");
+		evento2.setGenero_musical("Jazz");
+
+		when(eventDao.findAll()).thenReturn(Arrays.asList(evento1, evento2));
+
+		// Llamar al método del servicio
+		List<EventResponse> eventos = eventService.findAll();
+
+		// Verificar los resultados
+		assertEquals(2, eventos.size());
+		assertEquals("Concierto de Rock", eventos.get(0).getNombre());
+		assertEquals("Festival de Jazz", eventos.get(1).getNombre());
+
 	}
 }
