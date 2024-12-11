@@ -7,19 +7,35 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 
+import jakarta.validation.constraints.NotNull;
+
 public class EventRequest implements Serializable {
 
 	@Serial
 	private static final long serialVersionUID = 1L;
-	
+
+	@NotNull(message = "El nombre del evento no puede estar vacío")
 	private String nombre;
+
 	private String descripcion;
+
+	@NotNull(message = "La fecha del evento no puede estar vacía")
 	private LocalDate fechaEvento;
+
+	@NotNull(message = "La hora del evento no puede estar vacía")
 	private LocalTime horaEvento;
+
+	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
 	private BigDecimal precioMaximo;
+
+	@NotNull(message = "El precio máximo del evento no puede estar vacío")
 	private BigDecimal precioMinimo;
+
+	@NotNull(message = "La localidad del evento no puede estar vacía")
 	private Localidad localidad;
+
 	private String nombreRecinto;
+
 	private String generoMusica;
 
 	public String getNombre() {

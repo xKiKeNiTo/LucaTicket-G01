@@ -11,6 +11,7 @@ import org.mockito.MockitoAnnotations;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,8 +30,7 @@ class EventServiceTest {
 	}
 
 	@Test
-	void debeGuardarEventoCorrectamente() {
-		// Datos de prueba
+	void debeGuardarEventoExitosamente() {
 		EventRequest request = new EventRequest();
 		request.setNombre("Concierto de Jazz");
 		request.setDescripcion("Un concierto inolvidable");
@@ -38,23 +38,23 @@ class EventServiceTest {
 		request.setHoraEvento(LocalTime.of(20, 0));
 		request.setPrecioMinimo(BigDecimal.valueOf(50.00));
 		request.setPrecioMaximo(BigDecimal.valueOf(150.00));
-		request.setLocalidad(Localidad.Albacete);
+		request.setLocalidad(Localidad.Madrid);
 		request.setNombreRecinto("Palacio de Deportes");
 		request.setGeneroMusica("Jazz");
 
+		UUID generatedId = UUID.randomUUID();
+
 		Event event = new Event();
-		event.setId(null);
+		event.setId(generatedId); // Asignar un UUID explícito
 		event.setNombre("Concierto de Jazz");
- 
-		// Configurar mocks
+
 		when(eventDao.save(any(Event.class))).thenReturn(event);
 
-		// Ejecutar método
 		EventResponse response = eventService.save(request);
 
-		// Verificar resultados
 		assertNotNull(response);
 		assertEquals("Concierto de Jazz", response.getNombre());
+		assertEquals(generatedId, response.getId()); // Verificar que el ID coincide
 		verify(eventDao, times(1)).save(any(Event.class));
 	}
 
@@ -68,7 +68,7 @@ class EventServiceTest {
 		request.setHoraEvento(LocalTime.of(20, 0));
 		request.setPrecioMinimo(BigDecimal.valueOf(50.00));
 		request.setPrecioMaximo(BigDecimal.valueOf(150.00));
-		request.setLocalidad(Localidad.Albacete);
+		request.setLocalidad(Localidad.Madrid);
 		request.setNombreRecinto("Palacio de Deportes");
 		request.setGeneroMusica("Jazz");
 
@@ -77,25 +77,24 @@ class EventServiceTest {
 
 		// Verificar resultados
 		assertEquals("Concierto de Jazz", event.getNombre());
-		assertEquals(Localidad.Albacete, event.getLocalidad());
+		assertEquals(Localidad.Madrid, event.getLocalidad());
 		assertEquals(LocalDate.of(2024, 12, 25), event.getFecha_evento());
 		assertEquals(LocalTime.of(20, 0), event.getHora_evento());
 	}
 
 	@Test
-	void debeMapearEntityToRequest() {
-		// Datos de prueba
-		Event event = new Event(null, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
-				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Albacete,
+	void debeMapearEntityToResponse() {
+		UUID generatedId = UUID.randomUUID();
+
+		Event event = new Event(generatedId, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
+				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Madrid,
 				"Wanda Metropolitano", "Rock");
 
-		// Ejecutar método
 		EventResponse response = eventService.mapToResponse(event);
 
-		// Verificar resultados
-		assertEquals(1L, response.getId());
+		assertEquals(generatedId, response.getId()); // Comparar el UUID
 		assertEquals("Concierto de Rock", response.getNombre());
-		assertEquals(Localidad.Albacete, response.getLocalidad());
+		assertEquals(Localidad.Madrid, response.getLocalidad());
 		assertEquals(LocalDate.of(2024, 12, 25), response.getFechaEvento());
 		assertEquals(LocalTime.of(20, 0), response.getHoraEvento());
 	}
