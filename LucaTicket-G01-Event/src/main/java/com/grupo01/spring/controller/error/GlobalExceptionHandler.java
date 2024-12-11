@@ -9,6 +9,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import org.slf4j.Logger;
@@ -105,10 +106,9 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
-	    String message = "Error en el formato del JSON";
-	    return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), null);
+		String message = "Error en el formato del JSON";
+		return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), null);
 	}
-
 
 	/**
 	 * Manejador de excepciones personalizadas.
@@ -148,4 +148,17 @@ public class GlobalExceptionHandler {
 		String message = "Ruta no encontrada: " + ex.getRequestURL();
 		return buildErrorResponse(message, HttpStatus.NOT_FOUND.value(), null);
 	}
+
+	/**
+	 * Manejo de errores cuando falta un parámetro requerido en la solicitud.
+	 */
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex) {
+		String paramName = ex.getParameterName();
+		String paramType = ex.getParameterType();
+		String message = String.format("El parámetro requerido '%s' de tipo '%s' no está presente.", paramName,
+				paramType);
+		return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), paramName);
+	}
+
 }

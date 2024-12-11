@@ -21,4 +21,6 @@ public interface EventService {
 	 * @return EventResponse DTO con los datos del evento creado.
 	 */
 	EventResponse save(EventRequest eventRequest);
+
+	List<EventResponse> findByNombre(String nombre);
 }
