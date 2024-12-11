@@ -1,6 +1,7 @@
 package com.grupo01.spring.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ public class Event {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@NotNull(message = "El nombre del evento no puede estar vacío")
+	@NotBlank(message = "El nombre del evento no puede estar vacío")
 	private String nombre;
 
 	private String descripcion;
