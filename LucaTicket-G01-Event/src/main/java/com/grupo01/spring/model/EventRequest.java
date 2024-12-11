@@ -1,5 +1,6 @@
 package com.grupo01.spring.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.util.Date;
 
 public class EventRequest implements Serializable {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 	
 	private String nombre;
@@ -68,9 +70,7 @@ public class EventRequest implements Serializable {
 		this.precioMinimo = precioMinimo;
 	}
 
-	public Localidad getLocalidad() {
-		return localidad;
-	}
+	public Localidad getLocalidad() {return localidad;}
 
 	public void setLocalidad(Localidad localidad) {
 		this.localidad = localidad;
