@@ -1,9 +1,6 @@
 package com.grupo01.spring.model;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -11,6 +8,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.UUID;
 
 /**
  * Clase Event Modelo con constructor, getters, setters y toString
@@ -19,11 +17,11 @@ import java.time.LocalTime;
  * @author Moha
  */
 
-@EntityScan
+@Entity
 @Table(name = "events")
 public class Event {
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@NotNull(message = "El nombre del evento no puede estar vacío")
