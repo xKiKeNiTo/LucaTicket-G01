@@ -4,13 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,6 +98,19 @@ public class GlobalExceptionHandler {
 	}
 
 	/**
+	 * Captura excepciones por JSON mal formado o no legible.
+	 *
+	 * @param ex Excepción lanzada por Jackson o errores de formato JSON.
+	 * @return Respuesta con el mensaje de error y código HTTP.
+	 */
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+	    String message = "Error en el formato del JSON";
+	    return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), null);
+	}
+
+
+	/**
 	 * Manejador de excepciones personalizadas.
 	 *
 	 * @param ex Excepción personalizada lanzada por la lógica de negocio.
@@ -131,17 +143,9 @@ public class GlobalExceptionHandler {
 	 * @param ex Excepción lanzada cuando un argumento no puede ser convertido.
 	 * @return Respuesta con el campo, mensaje de error y código HTTP.
 	 */
-//	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
-//	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-//		String fieldName = ex.getName();
-//		String message = String.format("El valor '%s' no es válido para el campo '%s'.", ex.getValue(), fieldName);
-//		return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), fieldName);
-//	}
-
 	@ExceptionHandler(NoHandlerFoundException.class)
 	public ResponseEntity<Object> handleNoHandlerFound(NoHandlerFoundException ex) {
 		String message = "Ruta no encontrada: " + ex.getRequestURL();
 		return buildErrorResponse(message, HttpStatus.NOT_FOUND.value(), null);
 	}
-
 }
