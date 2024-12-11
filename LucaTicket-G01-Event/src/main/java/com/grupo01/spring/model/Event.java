@@ -1,7 +1,10 @@
 package com.grupo01.spring.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,46 +25,53 @@ public class Event {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@NotNull(message = "El nombre del evento no puede estar vacío")
+	@NotBlank(message = "El nombre del evento no puede estar vacío")
 	private String nombre;
 
 	private String descripcion;
 
 	@NotNull(message = "La fecha del evento no puede estar vacía")
-	private LocalDate fecha_evento;
+	private LocalDate fechaEvento;
 
 	@NotNull(message = "La hora del evento no puede estar vacía")
-	private LocalTime hora_evento;
+	private LocalTime horaEvento;
 
+	@Positive(message = "El precio mínimo debe ser mayor que 0")
 	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
-	private BigDecimal precio_minimo;
+	private BigDecimal precioMinimo;
 
+	@Positive(message = "El precio máximo debe ser mayor que 0")
 	@NotNull(message = "El precio máximo del evento no puede estar vacío")
-	private BigDecimal precio_maximo;
+	private BigDecimal precioMaximo;
+
+	@AssertTrue(message = "El precio mínimo debe ser menor que el precio máximo")
+	public boolean isPrecioMinimoMenorQuePrecioMaximo() {
+		return precioMinimo != null && precioMaximo != null && precioMinimo.compareTo(precioMaximo) < 0;
+	}
 
 	@NotNull(message = "La localidad del evento no puede estar vacía")
 	private Localidad localidad;
 
-	private String nombre_recinto;
+	private String nombreRecinto;
 
-	private String genero_musical;
+	private String generoMusical;
 
 	public Event() {
 	}
 
-	public Event(UUID id, String nombre, String descripcion, LocalDate fecha_evento, LocalTime hora_evento,
-			BigDecimal precio_minimo, BigDecimal precio_maximo, Localidad localidad, String nombre_recinto,
-			String genero_musical) {
+	public Event(UUID id, String nombre, String descripcion, LocalDate fechaEvento, LocalTime horaEvento,
+			BigDecimal precioMinimo, BigDecimal precioMaximo, Localidad localidad, String nombreRecinto,
+			String generoMusical) {
 		this.id = id;
 		this.nombre = nombre;
 		this.descripcion = descripcion;
-		this.fecha_evento = fecha_evento;
-		this.hora_evento = hora_evento;
-		this.precio_minimo = precio_minimo;
-		this.precio_maximo = precio_maximo;
+		this.fechaEvento = fechaEvento;
+		this.horaEvento = horaEvento;
+		this.precioMinimo = precioMinimo;
+		this.precioMaximo = precioMaximo;
 		this.localidad = localidad;
-		this.nombre_recinto = nombre_recinto;
-		this.genero_musical = genero_musical;
+		this.nombreRecinto = nombreRecinto;
+		this.generoMusical = generoMusical;
 	}
 
 	public UUID getId() {
@@ -88,36 +98,36 @@ public class Event {
 		this.descripcion = descripcion;
 	}
 
-	public LocalDate getFecha_evento() {
-		return fecha_evento;
+	public LocalDate getFechaEvento() {
+		return fechaEvento;
 	}
 
-	public void setFecha_evento(LocalDate fecha_evento) {
-		this.fecha_evento = fecha_evento;
+	public void setFechaEvento(LocalDate fechaEvento) {
+		this.fechaEvento = fechaEvento;
 	}
 
-	public LocalTime getHora_evento() {
-		return hora_evento;
+	public LocalTime getHoraEvento() {
+		return horaEvento;
 	}
 
-	public void setHora_evento(LocalTime hora_evento) {
-		this.hora_evento = hora_evento;
+	public void setHoraEvento(LocalTime horaEvento) {
+		this.horaEvento = horaEvento;
 	}
 
-	public BigDecimal getPrecio_minimo() {
-		return precio_minimo;
+	public BigDecimal getPrecioMinimo() {
+		return precioMinimo;
 	}
 
-	public void setPrecio_minimo(BigDecimal precio_minimo) {
-		this.precio_minimo = precio_minimo;
+	public void setPrecioMinimo(BigDecimal precioMinimo) {
+		this.precioMinimo = precioMinimo;
 	}
 
-	public BigDecimal getPrecio_maximo() {
-		return precio_maximo;
+	public BigDecimal getPrecioMaximo() {
+		return precioMaximo;
 	}
 
-	public void setPrecio_maximo(BigDecimal precio_maximo) {
-		this.precio_maximo = precio_maximo;
+	public void setPrecioMaximo(BigDecimal precioMaximo) {
+		this.precioMaximo = precioMaximo;
 	}
 
 	public Localidad getLocalidad() {
@@ -128,27 +138,27 @@ public class Event {
 		this.localidad = localidad;
 	}
 
-	public String getNombre_recinto() {
-		return nombre_recinto;
+	public String getNombreRecinto() {
+		return nombreRecinto;
 	}
 
-	public void setNombre_recinto(String nombre_recinto) {
-		this.nombre_recinto = nombre_recinto;
+	public void setNombreRecinto(String nombreRecinto) {
+		this.nombreRecinto = nombreRecinto;
 	}
 
-	public String getGenero_musical() {
-		return genero_musical;
+	public String getGeneroMusical() {
+		return generoMusical;
 	}
 
-	public void setGenero_musical(String genero_musical) {
-		this.genero_musical = genero_musical;
+	public void setGeneroMusical(String generoMusical) {
+		this.generoMusical = generoMusical;
 	}
 
 	@Override
 	public String toString() {
 		return "Event{" + "id=" + id + ", nombre='" + nombre + '\'' + ", descripcion='" + descripcion + '\''
-				+ ", fecha_evento=" + fecha_evento + ", hora_evento=" + hora_evento + ", precio_minimo=" + precio_minimo
-				+ ", precio_maximo=" + precio_maximo + ", localidad='" + localidad + '\'' + ", nombre_recinto='"
-				+ nombre_recinto + '\'' + ", genero_musical='" + genero_musical + '\'' + '}';
+				+ ", fechaEvento=" + fechaEvento + ", horaEvento=" + horaEvento + ", precioMinimo=" + precioMinimo
+				+ ", precioMaximo=" + precioMaximo + ", localidad='" + localidad + '\'' + ", nombreRecinto='"
+				+ nombreRecinto + '\'' + ", generoMusical='" + generoMusical + '\'' + '}';
 	}
 }

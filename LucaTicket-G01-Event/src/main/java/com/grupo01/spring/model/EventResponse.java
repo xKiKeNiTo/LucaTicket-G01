@@ -9,6 +9,7 @@ import java.util.UUID;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class EventResponse implements Serializable {
@@ -21,6 +22,26 @@ public class EventResponse implements Serializable {
 
 	public EventResponse(String message) {
 	}
+		
+	public EventResponse(UUID id, @NotBlank(message = "El nombre del evento no puede estar vacío") String nombre,
+			String descripcion, @NotNull(message = "La fecha del evento no puede estar vacía") LocalDate fechaEvento,
+			@NotNull(message = "La hora del evento no puede estar vacía") LocalTime horaEvento,
+			@NotNull(message = "El precio máximo del evento no puede estar vacío") BigDecimal precioMaximo,
+			@NotNull(message = "El precio mínimo del evento no puede estar vacío") BigDecimal precioMinimo,
+			@NotNull(message = "La localidad del evento no puede estar vacía") Localidad localidad,
+			String nombreRecinto, String generoMusica) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.descripcion = descripcion;
+		this.fechaEvento = fechaEvento;
+		this.horaEvento = horaEvento;
+		this.precioMaximo = precioMaximo;
+		this.precioMinimo = precioMinimo;
+		this.localidad = localidad;
+		this.nombreRecinto = nombreRecinto;
+		this.generoMusica = generoMusica;
+	}
 
 	private static final long serialVersionUID = 2L;
 
@@ -28,7 +49,7 @@ public class EventResponse implements Serializable {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@NotNull(message = "El nombre del evento no puede estar vacío")
+	@NotBlank(message = "El nombre del evento no puede estar vacío")
 	private String nombre;
 
 	private String descripcion;
@@ -39,10 +60,10 @@ public class EventResponse implements Serializable {
 	@NotNull(message = "La hora del evento no puede estar vacía")
 	private LocalTime horaEvento;
 
-	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
+	@NotNull(message = "El precio máximo del evento no puede estar vacío")
 	private BigDecimal precioMaximo;
 
-	@NotNull(message = "El precio máximo del evento no puede estar vacío")
+	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
 	private BigDecimal precioMinimo;
 
 	@NotNull(message = "La localidad del evento no puede estar vacía")

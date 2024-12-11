@@ -1,47 +1,47 @@
 package com.grupo01.spring.controller;
 
-import com.grupo01.spring.model.Event;
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.service.EventService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- *  Controlador REST para la gestion de eventos
- * @version 1
- * @author All
+ * Controlador REST para la gestión de eventos
+ *
+ * @version 1.1
+ * @author equipo
  */
 @RestController
 @RequestMapping("/eventos")
 public class EventController {
 
-    @Autowired
-    private EventService eventService;
+    private final EventService eventService;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Event>> obtenerTodosEventos() {
-        List<Event> eventos = eventService.findAll();
-
-        return ResponseEntity.ok(eventos);
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
     }
 
-    /**
-     * Guarda un evento en la base de datos.
-     *
-     * @param nuevoEvento El juego que se desea guardar.
-     * @return ResponseEntity con el EventResponseDTO.
-     */
+    @GetMapping("/all")
+    public ResponseEntity<Map<String, Object>> obtenerTodosEventos() {
+        List<EventResponse> eventos = eventService.findAll();
+        Map<String, Object> response = new HashMap<>();
+        response.put("totalEventos", eventos.size());
+        response.put("eventos", eventos);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/save")
     public ResponseEntity<EventResponse> saveEvent(@RequestBody @Valid EventRequest nuevoEvento) {
         try {
             EventResponse eventoGuardado = eventService.save(nuevoEvento);
-            return ResponseEntity.ok(eventoGuardado);
+            return ResponseEntity.status(HttpStatus.CREATED).body(eventoGuardado);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
                     .body(new EventResponse("Error: Valor inválido para algún campo del evento."));
@@ -51,3 +51,4 @@ public class EventController {
         }
     }
 }
+
