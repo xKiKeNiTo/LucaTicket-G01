@@ -1,5 +1,6 @@
 package com.grupo01.spring.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
+import com.grupo01.spring.model.Event;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -170,4 +172,31 @@ public class EventControllerMockTest {
 																						// evento
 	}
 
+	@Test
+	void debeDevolverDetallesEvento() throws Exception {
+		// Datos de prueba
+		UUID id = UUID.randomUUID();
+		EventResponse evento = new EventResponse();
+		evento.setId(id);
+		evento.setNombre("Test");
+		evento.setFechaEvento(LocalDate.of(2024, 1, 1));
+		evento.setHoraEvento(LocalTime.of(0, 0));
+		evento.setPrecioMinimo(BigDecimal.valueOf(0));
+		evento.setPrecioMaximo(BigDecimal.valueOf(0));
+		evento.setLocalidad(Localidad.Madrid);
+
+		String detalles = "El evento 'Test' se realiza en Madrid el dia 2024-01-01 a las 00:00";
+
+		// Mock del servicio
+		when(eventService.getReferenceById(id)).thenReturn(detalles);
+
+		// Llamar al endpoint
+		mockMvc.perform(get("/eventos/detalles")
+						.param("id", id.toString()))
+				.andExpect(status().isOk())
+				.andExpect(content().string(detalles));
+
+		// Verificar interacciones
+		verify(eventService, times(1)).getReferenceById(id);
+	}
 }

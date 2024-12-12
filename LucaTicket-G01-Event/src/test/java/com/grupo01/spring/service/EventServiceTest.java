@@ -141,6 +141,35 @@ class EventServiceTest {
 	}
 
 	@Test
+	void debeDevolverDetallesEvento() {
+		// Datos de prueba
+		UUID id = UUID.randomUUID();
+		Event evento = new Event();
+		evento.setId(UUID.randomUUID());
+		evento.setNombre("Test");
+		evento.setFechaEvento(LocalDate.of(2024, 1, 1));
+		evento.setHoraEvento(LocalTime.of(0, 0));
+		evento.setPrecioMinimo(BigDecimal.valueOf(0));
+		evento.setPrecioMaximo(BigDecimal.valueOf(0));
+		evento.setLocalidad(Localidad.Madrid);
+
+		// Mockear el comportamiento del DAO
+		when(eventDao.getReferenceById(id)).thenReturn(evento);
+
+		// Llamar a la función
+		String detalles = eventServiceImpl.getReferenceById(id);
+
+		// String esperado
+		String esperado = "El evento 'Test' se realiza en Madrid el dia 2024-01-01 a las 00:00";
+
+		// Verificar el resultado
+		assertEquals(esperado, detalles);
+
+		// Verificar interacciones con el mock
+		verify(eventDao, times(1)).getReferenceById(id);
+	}
+
+	@Test
 	void debeDevolverEventosPorNombre() {
 		// Configurar datos de prueba
 		String nombreBusqueda = "Jazz";
