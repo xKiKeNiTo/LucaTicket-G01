@@ -2,8 +2,10 @@ package com.grupo01.spring.service;
 
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
+import org.yaml.snakeyaml.events.Event;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface EventService {
 
@@ -23,4 +25,6 @@ public interface EventService {
 	EventResponse save(EventRequest eventRequest);
 
 	List<EventResponse> findByNombreContainsIgnoreCase(String nombre);
+	
+	EventResponse getReferenceById(UUID id);
 }

@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -21,6 +22,11 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public List<EventResponse> findAll() {
 		return eventDao.findAll().stream().map(this::mapToResponse).toList();
+	}
+
+
+	public EventResponse getReferenceById(UUID id) {
+		return mapToResponse(eventDao.getReferenceById(id));
 	}
 
 	@Override
