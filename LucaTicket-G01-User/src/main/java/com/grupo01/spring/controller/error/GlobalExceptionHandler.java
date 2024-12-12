@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * Clase para manejar excepciones globales en la aplicación. Captura y gestiona
  * errores comunes de manera centralizada.
  *
+ * @version 1.0
  * @author Raul
  * @date 02/12/2024
  */
