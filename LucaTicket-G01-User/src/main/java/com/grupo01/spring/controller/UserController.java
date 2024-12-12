@@ -2,7 +2,7 @@ package com.grupo01.spring.controller;
 
 import com.grupo01.spring.model.UserRequest;
 import com.grupo01.spring.model.UserResponse;
-import com.grupo01.spring.service.UserService;
+import com.grupo01.spring.service.UserServiceImpl;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,22 +13,24 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-	@Autowired
-	private UserService userService;
+    @Autowired
+    private UserServiceImpl userServiceImpl;
 
-	/**
-	 * Endpoint para crear un nuevo usuario
-	 *
-	 * @param userRequest datos del usuario a crear.
-	 * @return ResponseEntity con UserResponse y el estado HTTP.
-	 */
-	@PostMapping
-	public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
+    /**
+     * Endpoint para crear un nuevo usuario
+     *
+     * @param userRequest datos del usuario a crear.
+     * @return ResponseEntity con UserResponse y el estado HTTP.
+     */
+    @PostMapping("/save")
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
+       
+        UserResponse createdUser = userServiceImpl.save(userRequest);
 
 		UserRequest userRequestDomain = new UserRequest(userRequest.getMail(), userRequest.getNombre(),
 				userRequest.getApellido(), userRequest.getContrasena());
 
-		UserResponse userResponseDomain = userService.save(userRequestDomain);
+		UserResponse userResponseDomain = userServiceImpl.save(userRequestDomain);
 
 		UserResponse userResponse = new UserResponse(userResponseDomain.getMail(), userResponseDomain.getNombre(),
 				userResponseDomain.getApellido(), userResponseDomain.getFechaAlta());
