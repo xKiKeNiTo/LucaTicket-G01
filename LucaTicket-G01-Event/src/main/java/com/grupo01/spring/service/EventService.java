@@ -2,8 +2,10 @@ package com.grupo01.spring.service;
 
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
+import org.yaml.snakeyaml.events.Event;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface EventService {
 
@@ -21,6 +23,8 @@ public interface EventService {
 	 * @return EventResponse DTO con los datos del evento creado.
 	 */
 	EventResponse save(EventRequest eventRequest);
+
+	EventResponse getReferenceById(UUID id);
 
 	List<EventResponse> findByNombre(String nombre);
 }
