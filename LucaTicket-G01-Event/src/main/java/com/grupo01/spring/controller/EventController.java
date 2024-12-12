@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Controlador REST para la gestión de eventos
@@ -59,5 +60,24 @@ public class EventController {
 		}
 		return ResponseEntity.ok(eventos);
 	}
+	
+	@DeleteMapping("/deleteEvent/{id}")
+	public ResponseEntity<Map<String, Object>> deleteEventById(@PathVariable String id) {
+	    Map<String, Object> response = new HashMap<>();
+	    try {
+	        UUID uuid = UUID.fromString(id); // Intentar convertir el ID a UUID
+	        EventResponse eventoEliminado = eventService.deleteEventById(uuid);
 
+	        response.put("statusCode", HttpStatus.OK.value());
+	        response.put("message", "El evento ha sido eliminado correctamente.");
+	        response.put("Evento eliminado", eventoEliminado);
+	        // Devuelve el evento eliminado con mensaje y código
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) { // En caso de no encontrar el evento
+	        response.put("statusCode", HttpStatus.NOT_FOUND.value());
+	        response.put("message", "Evento no encontrado para eliminar.");
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	    }
+	}	
+	
 }

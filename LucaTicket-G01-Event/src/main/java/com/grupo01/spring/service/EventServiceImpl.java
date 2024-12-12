@@ -5,9 +5,12 @@ import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.repository.EventDao;
 import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -56,5 +59,25 @@ public class EventServiceImpl implements EventService {
 		return new EventResponse(event.getId(), event.getNombre(), event.getDescripcion(), event.getFechaEvento(),
 				event.getHoraEvento(), event.getPrecioMinimo(), event.getPrecioMaximo(), event.getLocalidad(),
 				event.getNombreRecinto(), event.getGeneroMusical());
+	}
+	
+	/**
+	 * Elimina un evento de la base de datos dado su ID.
+	 *
+	 * @param id ID del evento a eliminar.
+	 * @return El evento eliminado.
+	 * @throws RuntimeException Si el evento no se encuentra.
+	 */
+	@Override
+	@Transactional
+	public EventResponse deleteEventById(UUID id) {
+		Optional<Event> eventOptional = eventDao.findById(id);  // Busca el evento en la base de datos
+		if (eventOptional.isPresent()) {
+			Event eventoEliminado = eventOptional.get();
+			eventDao.delete(eventoEliminado);  // Elimina el evento
+			return mapToResponse(eventoEliminado);  // Mapea el evento a un EventResponse
+		} else {
+			throw new RuntimeException("Evento con ID " + id + " no encontrado para eliminar.");
+		}
 	}
 }

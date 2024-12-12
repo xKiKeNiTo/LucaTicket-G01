@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,7 +91,7 @@ class EventServiceTest {
 
 		Event event = new Event(generatedId, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
 				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Madrid,
-				"Wanda Metropolitano", "Rock");
+				"Estadio Metropolitano", "Rock");
 
 		EventResponse response = eventServiceImpl.mapToResponse(event);
 
@@ -139,4 +140,27 @@ class EventServiceTest {
 		assertEquals("Festival de Jazz", eventos.get(1).getNombre());
 
 	}
+	
+	@Test
+	void debeEliminarEventoPorId() {
+        UUID eventId = UUID.randomUUID(); // Genera ID para el evento
+        // Crea un evento para la prueba
+        Event event = new Event(eventId, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
+				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Madrid,
+				"Estadio Metropolitano", "Rock"); 
+
+        // Simula que el repositorio devuelve el evento cuando se busca por ID
+        when(eventDao.findById(eventId)).thenReturn(Optional.of(event));
+
+        // Llama al servicio para eliminar el evento
+        EventResponse eventoEliminado = eventServiceImpl.deleteEventById(eventId);
+
+        // Comprueba que el evento ha sido eliminado correctamente
+        assertNotNull(eventoEliminado, "El evento eliminado no debe ser nulo");
+        assertEquals(eventId, eventoEliminado.getId(), "El ID del evento eliminado debe coincidir");
+
+        // Verifica que el repositorio fue llamado exactamente una vez
+        verify(eventDao, times(1)).delete(event);    
+	}
+		
 }

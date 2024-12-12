@@ -1,5 +1,6 @@
 package com.grupo01.spring.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -127,5 +129,26 @@ public class EventControllerMockTest {
 				.andExpect(jsonPath("$[1].descripcion").value("Evento musical al aire libre"))
 				.andExpect(jsonPath("$[1].localidad").value("Barcelona"));
 	}
+	
+	@Test
+	public void debeEliminarEventoCuandoLlamoEndpoint() throws Exception {
+		// Dado
+        UUID eventId = UUID.randomUUID();
+        EventResponse eventResponse = new EventResponse(UUID.randomUUID(), "Concierto de Rock", "Un gran concierto",
+				LocalDate.of(2024, 12, 15), LocalTime.of(20, 30), new BigDecimal("50.00"),
+				new BigDecimal("20.00"), Localidad.AlcalaDeHenares, "Recinto A", "Rock");
 
+        // Simula la respuesta del servicio cuando se llama al método deleteEventById
+        when(eventService.deleteEventById(eventId)).thenReturn(eventResponse);
+
+        // Ejecuta la petición delete al endpoint
+        mockMvc.perform(delete("/eventos/deleteEvent/{id}", eventId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // Verifica que el código de estado sea 200
+                .andExpect(jsonPath("$.statusCode").value(200)) // Verifica el código de estado en el cuerpo
+                .andExpect(jsonPath("$.message").value("El evento ha sido eliminado correctamente.")); // Verifica el mensaje en el cuerpo
+
+        // Verifica que el servicio fue llamado con el ID correcto
+        verify(eventService, times(1)).deleteEventById(eventId);
+    }
 }

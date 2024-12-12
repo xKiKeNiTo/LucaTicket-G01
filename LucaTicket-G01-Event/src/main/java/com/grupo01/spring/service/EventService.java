@@ -4,6 +4,7 @@ import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface EventService {
 
@@ -23,4 +24,6 @@ public interface EventService {
 	EventResponse save(EventRequest eventRequest);
 
 	List<EventResponse> findByNombre(String nombre);
+	
+	EventResponse deleteEventById(UUID id);
 }
