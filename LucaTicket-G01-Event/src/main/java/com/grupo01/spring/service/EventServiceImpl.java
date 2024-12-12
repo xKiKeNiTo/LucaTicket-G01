@@ -24,6 +24,13 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
+	public List<EventResponse> findByNombre(String nombre) {
+//		Nombre exacto
+//		return eventDao.findByNombre(nombre).stream().map(this::mapToResponse).toList();
+		return eventDao.findByNombreContainingIgnoreCase(nombre).stream().map(this::mapToResponse).toList();
+	}
+
+	@Override
 	@Transactional
 	public EventResponse save(EventRequest eventRequest) {
 		Event event = mapToEntity(eventRequest);
