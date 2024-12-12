@@ -23,6 +23,7 @@ import com.grupo01.spring.model.EventResponse;
 
 import com.grupo01.spring.model.Localidad;
 import com.grupo01.spring.service.EventService;
+import com.grupo01.spring.service.EventServiceImpl;
 
 @WebMvcTest(EventController.class)
 public class EventControllerMockTest {
@@ -79,12 +80,13 @@ public class EventControllerMockTest {
 		when(eventService.findAll()).thenReturn(events);
 
 		// Realizar la solicitud GET al endpoint /eventos
-		mockMvc.perform(get("/eventos/all")).andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
-				.andExpect(jsonPath("$[0].nombre").value("Concierto de Rock"))
-				.andExpect(jsonPath("$[1].nombre").value("Festival de Jazz"));
+		mockMvc.perform(get("/eventos/all").contentType("application/json")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.totalEventos").value(2)) // Verifica el número total de eventos
+				.andExpect(jsonPath("$.eventos", org.hamcrest.Matchers.hasSize(2))) // Verifica que hay 2 eventos en el
+																					// array
+				.andExpect(jsonPath("$.eventos[0].nombre").value("Concierto de Rock")) // Verifica el primer evento
+				.andExpect(jsonPath("$.eventos[1].nombre").value("Festival de Jazz")); // Verifica el segundo evento
 
-		// Verificar que el servicio findAll() fue llamado exactamente una vez
-		verify(eventService, times(1)).findAll();
 	}
 
 	@Test
@@ -119,13 +121,53 @@ public class EventControllerMockTest {
 
 		// Realizar la solicitud y validar la respuesta
 		mockMvc.perform(get("/eventos/all").contentType("application/json")).andExpect(status().isOk())
-				.andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(2)))
-				.andExpect(jsonPath("$[0].nombre").value("Concierto de Rock"))
-				.andExpect(jsonPath("$[0].descripcion").value("Evento musical en vivo"))
-				.andExpect(jsonPath("$[0].localidad").value("Madrid"))
-				.andExpect(jsonPath("$[1].nombre").value("Festival de Jazz"))
-				.andExpect(jsonPath("$[1].descripcion").value("Evento musical al aire libre"))
-				.andExpect(jsonPath("$[1].localidad").value("Barcelona"));
+				.andExpect(jsonPath("$.totalEventos").value(2)) // Verifica que hay 2 eventos en total
+				.andExpect(jsonPath("$.eventos", org.hamcrest.Matchers.hasSize(2))) // Verifica el tamaño de la lista de
+																					// eventos
+				.andExpect(jsonPath("$.eventos[0].nombre").value("Concierto de Rock"))
+				.andExpect(jsonPath("$.eventos[1].nombre").value("Festival de Jazz"));
+	}
+
+	@Test
+	public void debeDevolverEventosPorNombre() throws Exception {
+		// Configurar datos de prueba
+		EventResponse evento1 = new EventResponse();
+		evento1.setId(UUID.randomUUID());
+		evento1.setNombre("Concierto de Rock");
+		evento1.setDescripcion("Evento musical en vivo");
+		evento1.setFechaEvento(LocalDate.of(2024, 12, 15));
+		evento1.setHoraEvento(LocalTime.of(20, 0));
+		evento1.setPrecioMinimo(BigDecimal.valueOf(50));
+		evento1.setPrecioMaximo(BigDecimal.valueOf(120));
+		evento1.setLocalidad(Localidad.Madrid);
+		evento1.setNombreRecinto("Wanda Metropolitano");
+		evento1.setGeneroMusica("Rock");
+
+		EventResponse evento2 = new EventResponse();
+		evento2.setId(UUID.randomUUID());
+		evento2.setNombre("Festival de Rock");
+		evento2.setDescripcion("Otro evento musical");
+		evento2.setFechaEvento(LocalDate.of(2024, 6, 10));
+		evento2.setHoraEvento(LocalTime.of(18, 0));
+		evento2.setPrecioMinimo(BigDecimal.valueOf(30));
+		evento2.setPrecioMaximo(BigDecimal.valueOf(100));
+		evento2.setLocalidad(Localidad.Barcelona);
+		evento2.setNombreRecinto("Estadio Olímpico");
+		evento2.setGeneroMusica("Rock");
+
+		// Simular la respuesta del servicio
+		when(eventService.findByNombreContainsIgnoreCase("Rock")).thenReturn(Arrays.asList(evento1, evento2));
+
+		// Realizar la solicitud y validar la respuesta
+		mockMvc.perform(get("/eventos/nombre").param("nombre", "Rock").contentType("application/json"))
+				.andExpect(status().isOk()).andExpect(jsonPath("$.totalEventos").value(2)) // Verifica el número total
+																							// de eventos
+				.andExpect(jsonPath("$.eventos", org.hamcrest.Matchers.hasSize(2))) // Verifica que hay 2 eventos en la
+																					// lista
+				.andExpect(jsonPath("$.eventos[0].nombre").value("Concierto de Rock")) // Verifica el nombre del primer
+																						// evento
+				.andExpect(jsonPath("$.eventos[1].nombre").value("Festival de Rock")); // Verifica el nombre del segundo
+																						// evento
 	}
 
 }

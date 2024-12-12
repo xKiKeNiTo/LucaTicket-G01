@@ -52,12 +52,13 @@ public class EventController {
 	}
 
 	@GetMapping("/nombre")
-	public ResponseEntity<List<EventResponse>> listarEventosPorNombre(@RequestParam String nombre) {
-		List<EventResponse> eventos = eventService.findByNombre(nombre);
-		if (eventos.isEmpty()) {
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok(eventos);
+	public ResponseEntity<Map<String, Object>> listarEventosPorNombre(@RequestParam String nombre) {
+	    List<EventResponse> eventos = eventService.findByNombreContainsIgnoreCase(nombre);
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("totalEventos", eventos.size());
+	    response.put("eventos", eventos);
+	    return ResponseEntity.ok(response);
 	}
+
 
 }

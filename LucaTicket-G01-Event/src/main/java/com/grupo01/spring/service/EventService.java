@@ -22,5 +22,5 @@ public interface EventService {
 	 */
 	EventResponse save(EventRequest eventRequest);
 
-	List<EventResponse> findByNombre(String nombre);
+	List<EventResponse> findByNombreContainsIgnoreCase(String nombre);
 }

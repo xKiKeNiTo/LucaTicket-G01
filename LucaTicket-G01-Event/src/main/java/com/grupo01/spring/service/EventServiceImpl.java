@@ -24,7 +24,7 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public List<EventResponse> findByNombre(String nombre) {
+	public List<EventResponse> findByNombreContainsIgnoreCase(String nombre) {
 //		Nombre exacto
 //		return eventDao.findByNombre(nombre).stream().map(this::mapToResponse).toList();
 		return eventDao.findByNombreContainingIgnoreCase(nombre).stream().map(this::mapToResponse).toList();

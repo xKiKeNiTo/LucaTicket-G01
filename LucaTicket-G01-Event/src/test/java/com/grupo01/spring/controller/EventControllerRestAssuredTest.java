@@ -23,7 +23,10 @@ public class EventControllerRestAssuredTest {
 
 	@Test
 	public void debeDevolverListaDeEventosCorrectamente() {
-		when().get("/all").then().statusCode(200).body("$", hasSize(greaterThan(0))).body("[0].nombre", notNullValue());
+		when().get("/all").then().statusCode(200).body("totalEventos", greaterThan(0)) // Validación del total de
+																						// eventos
+				.body("eventos.size()", greaterThan(0)) // Validación del tamaño de la lista de eventos
+				.body("eventos[0].nombre", notNullValue()); // Validación de un campo específico dentro de la lista
 	}
 
 	@Test
@@ -42,42 +45,30 @@ public class EventControllerRestAssuredTest {
 				}
 				""";
 
-		given()
-		.contentType("application/json")
-		.body(nuevoEventoJson)
-		.when()
-		.post("/save")
-		.then()
-		.statusCode(200)
-		.body("nombre", equalTo("Concierto de Jazz"))
-		.body("localidad", equalTo("Barcelona"));
+		given().contentType("application/json").body(nuevoEventoJson).when().post("/save").then().statusCode(201) // Cambiado
+																													// a
+																													// 201
+																													// para
+																													// creación
+				.body("nombre", equalTo("Concierto de Jazz")).body("localidad", equalTo("Barcelona"));
 	}
-	
+
 	@Test
 	public void debeDevolverErrorCuandoFaltanCampos() {
-	    String eventoIncompleto = """
-	        {
-	            "nombre": "",
-	            "fechaEvento": null,
-	            "horaEvento": null,
-	            "precioMinimo": null,
-	            "precioMaximo": null,
-	            "localidad": null
-	        }
-	        """;
+		String eventoIncompleto = """
+				{
+				    "nombre": "",
+				    "fechaEvento": null,
+				    "horaEvento": null,
+				    "precioMinimo": null,
+				    "precioMaximo": null,
+				    "localidad": null
+				}
+				""";
 
-	    given()
-	        .contentType("application/json")
-	        .body(eventoIncompleto)
-	        .when()
-	        .post("/save")
-	        .then()
-	        .statusCode(400)
-	        .body("errors", hasSize(greaterThan(0)))
-	        .body("errors.message", hasItems(
-	            "El nombre del evento no puede estar vacío",
-	            "La fecha del evento no puede estar vacía"
-	        ));
+		given().contentType("application/json").body(eventoIncompleto).when().post("/save").then().statusCode(400)
+				.body("errors.size()", greaterThan(0)) // Validación del tamaño de los errores
+				.body("errors.message", hasItems("El nombre del evento no puede estar vacío",
+						"La fecha del evento no puede estar vacía"));
 	}
-
 }
