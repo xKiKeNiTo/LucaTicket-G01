@@ -3,6 +3,7 @@ package com.grupo01.spring.controller;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.model.Localidad;
 import io.restassured.RestAssured;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,14 +19,14 @@ import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EventControllerRestAssuredTest {
-
+	
 	@LocalServerPort
 	private int port;
 
 	@BeforeEach
 	public void setUp() {
 		RestAssured.port = port;
-		RestAssured.basePath = "/eventos";
+		RestAssured.basePath = "/eventos";				
 	}
 
 	@Test
@@ -54,6 +55,7 @@ public class EventControllerRestAssuredTest {
 
 		given().contentType("application/json").body(nuevoEventoJson).when().post("/save").then().statusCode(201)
 				.body("nombre", equalTo("Concierto de Jazz")).body("localidad", equalTo("Barcelona"));
+
 	}
 
 	@Test
@@ -139,5 +141,5 @@ public class EventControllerRestAssuredTest {
             .body("data.precioMinimo", equalTo(70.00f))
             .body("data.precioMaximo", equalTo(150.00f));
     }
-	
+
 }

@@ -29,4 +29,7 @@ public interface EventService {
 	String getReferenceById(UUID id);
 
 	EventResponse updateEvent(UUID id, EventRequest eventoActualizado);
+	
+	EventResponse deleteEventById(UUID id);
+
 }
