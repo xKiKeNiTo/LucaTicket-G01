@@ -65,4 +65,20 @@ public class UserRequest implements Serializable {
 		return "UserRequestDTO [mail=" + mail + ", nombre=" + nombre + ", apellido=" + apellido + "]";
 	}
 
+	public UserRequest() {
+		super();
+	}
+
+	public UserRequest(
+			@Email(message = "El correo electronico debe ser valido") @NotBlank(message = "El correo electronico no puede estar vacio") String mail,
+			@NotBlank(message = "El nombre del usuario no puede estar vacio") @Size(max = 50, message = "El nombre no puede tener mas de 50 caracteres") String nombre,
+			@NotBlank(message = "El apellido del usuario no puede estar vacio") @Size(max = 50, message = "El apellido no puede tener mas de 50 caracteres") String apellido,
+			@NotBlank(message = "La contraseña del usuario no puede estar vacia") @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres") String contrasena) {
+		super();
+		this.mail = mail;
+		this.nombre = nombre;
+		this.apellido = apellido;
+		this.contrasena = contrasena;
+	}
+
 }

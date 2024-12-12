@@ -13,27 +13,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserServiceImpl userServiceImpl;
+	@Autowired
+	private UserServiceImpl userServiceImpl;
 
-    /**
-     * Endpoint para crear un nuevo usuario
-     *
-     * @param userRequest datos del usuario a crear.
-     * @return ResponseEntity con UserResponse y el estado HTTP.
-     */
-    @PostMapping("/save")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
-       
-        UserResponse createdUser = userServiceImpl.save(userRequest);
+	/**
+	 * Endpoint para crear un nuevo usuario
+	 *
+	 * @param userRequest datos del usuario a crear.
+	 * @return ResponseEntity con UserResponse y el estado HTTP.
+	 */
+	@PostMapping("/save")
+	public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
 
-        UserResponse userResponse = new UserResponse(
-                createdUser.getMail(),
-                createdUser.getNombre(),
-                createdUser.getApellido(),
-                createdUser.getFechaAlta()
-        );
+		UserRequest userRequestDomain = new UserRequest(userRequest.getMail(), userRequest.getNombre(),
+				userRequest.getApellido(), userRequest.getContrasena());
 
-        return ResponseEntity.status(201).body(userResponse);
-    }
+		UserResponse userResponseDomain = userServiceImpl.save(userRequestDomain);
+
+		UserResponse userResponse = new UserResponse(userResponseDomain.getMail(), userResponseDomain.getNombre(),
+				userResponseDomain.getApellido(), userResponseDomain.getFechaAlta());
+
+		return ResponseEntity.status(201).body(userResponse);
+	}
 }
