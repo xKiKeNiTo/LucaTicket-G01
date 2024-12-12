@@ -83,8 +83,8 @@ public class EventController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PutMapping("/edit/{id}")
-	public ResponseEntity<Map<String, Object>> modificarEvento(@PathVariable UUID id,
+	@PutMapping("/edit")
+	public ResponseEntity<Map<String, Object>> modificarEvento(@RequestParam UUID id,
 			@RequestBody @Valid EventRequest eventoActualizado) {
 		try {
 			EventResponse eventoModificado = eventService.updateEvent(id, eventoActualizado);
@@ -108,4 +108,5 @@ public class EventController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 		}
 	}
+
 }
