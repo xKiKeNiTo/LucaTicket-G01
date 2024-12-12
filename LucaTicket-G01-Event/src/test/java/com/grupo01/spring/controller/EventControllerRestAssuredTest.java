@@ -45,11 +45,7 @@ public class EventControllerRestAssuredTest {
 				}
 				""";
 
-		given().contentType("application/json").body(nuevoEventoJson).when().post("/save").then().statusCode(201) // Cambiado
-																													// a
-																													// 201
-																													// para
-																													// creación
+		given().contentType("application/json").body(nuevoEventoJson).when().post("/save").then().statusCode(201)
 				.body("nombre", equalTo("Concierto de Jazz")).body("localidad", equalTo("Barcelona"));
 	}
 
@@ -71,4 +67,18 @@ public class EventControllerRestAssuredTest {
 				.body("errors.message", hasItems("El nombre del evento no puede estar vacío",
 						"La fecha del evento no puede estar vacía"));
 	}
+
+	@Test
+	public void debeDevolverEventosPorNombre() {
+		given().queryParam("nombre", "Concierto de Jazz") // Enviamos el nombre como parámetro de consulta
+				.when().get("/nombre") // Endpoint para buscar eventos por nombre
+				.then().statusCode(200) // Verificamos que el estado sea 200
+				.body("totalEventos", greaterThan(0)) // Comprobamos que `totalEventos` sea mayor que 0
+				.body("eventos", notNullValue()) // Verificamos que la lista `eventos` no sea nula
+				.body("eventos[0].nombre", containsString("Concierto de Jazz")); // Verificamos que al menos un evento contenga
+																	// "Concierto de Jazz" en el nombre
+	}
+	
+	
+	
 }

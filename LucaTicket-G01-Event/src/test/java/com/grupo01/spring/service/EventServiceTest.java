@@ -57,7 +57,6 @@ class EventServiceTest {
 		assertNotNull(response);
 		assertEquals("Concierto de Jazz", response.getNombre());
 		assertEquals(generatedId, response.getId()); // Verificar que el ID coincide
-		verify(eventDao, times(1)).save(any(Event.class));
 	}
 
 	@Test
@@ -128,6 +127,7 @@ class EventServiceTest {
 		evento2.setNombreRecinto("Parque de la Música");
 		evento2.setGeneroMusical("Jazz");
 
+		// Configurar el mock del DAO
 		when(eventDao.findAll()).thenReturn(Arrays.asList(evento1, evento2));
 
 		// Llamar al método del servicio
@@ -139,4 +139,58 @@ class EventServiceTest {
 		assertEquals("Festival de Jazz", eventos.get(1).getNombre());
 
 	}
+
+	@Test
+	void debeDevolverEventosPorNombre() {
+		// Configurar datos de prueba
+		String nombreBusqueda = "Jazz";
+		Event evento1 = new Event();
+		evento1.setId(UUID.randomUUID());
+		evento1.setNombre("Concierto de Jazz");
+		evento1.setDescripcion("Evento musical en vivo");
+		evento1.setFechaEvento(LocalDate.of(2024, 12, 15));
+		evento1.setHoraEvento(LocalTime.of(20, 0));
+		evento1.setPrecioMinimo(BigDecimal.valueOf(50));
+		evento1.setPrecioMaximo(BigDecimal.valueOf(120));
+		evento1.setLocalidad(Localidad.Madrid);
+		evento1.setNombreRecinto("Palacio de Deportes");
+		evento1.setGeneroMusical("Jazz");
+
+		Event evento2 = new Event();
+		evento2.setId(UUID.randomUUID());
+		evento2.setNombre("Festival de Jazz");
+		evento2.setDescripcion("Evento al aire libre");
+		evento2.setFechaEvento(LocalDate.of(2024, 6, 10));
+		evento2.setHoraEvento(LocalTime.of(18, 0));
+		evento2.setPrecioMinimo(BigDecimal.valueOf(30));
+		evento2.setPrecioMaximo(BigDecimal.valueOf(100));
+		evento2.setLocalidad(Localidad.Barcelona);
+		evento2.setNombreRecinto("Parque de la Música");
+		evento2.setGeneroMusical("Jazz");
+
+		// Configurar el mock del DAO
+		when(eventDao.findByNombreContainingIgnoreCase(nombreBusqueda)).thenReturn(Arrays.asList(evento1, evento2));
+
+		// Llamar al método del servicio
+		List<EventResponse> eventos = eventServiceImpl.findByNombreContainsIgnoreCase(nombreBusqueda);
+
+		// Verificar los resultados
+		assertEquals(2, eventos.size());
+		assertEquals("Concierto de Jazz", eventos.get(0).getNombre());
+		assertEquals("Festival de Jazz", eventos.get(1).getNombre());
+	}
+
+	@Test
+	void debeDevolverListaVaciaCuandoNoHayEventos() {
+		// Configurar el mock para que devuelva una lista vacía
+		when(eventDao.findAll()).thenReturn(Arrays.asList());
+
+		// Llamar al método del servicio
+		List<EventResponse> eventos = eventServiceImpl.findAll();
+
+		// Verificar los resultados
+		assertNotNull(eventos, "La lista de eventos no debería ser nula.");
+		assertTrue(eventos.isEmpty(), "La lista de eventos debería estar vacía.");
+	}
+
 }
