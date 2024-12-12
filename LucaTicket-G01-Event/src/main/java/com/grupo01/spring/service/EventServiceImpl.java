@@ -4,6 +4,8 @@ import com.grupo01.spring.model.Event;
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.repository.EventDao;
+
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,6 @@ public class EventServiceImpl implements EventService {
 	public List<EventResponse> findAll() {
 		return eventDao.findAll().stream().map(this::mapToResponse).toList();
 	}
-
 
 	public EventResponse getReferenceById(UUID id) {
 		return mapToResponse(eventDao.getReferenceById(id));
@@ -63,4 +64,24 @@ public class EventServiceImpl implements EventService {
 				event.getHoraEvento(), event.getPrecioMinimo(), event.getPrecioMaximo(), event.getLocalidad(),
 				event.getNombreRecinto(), event.getGeneroMusical());
 	}
+
+	@Override
+	public EventResponse updateEvent(UUID id, EventRequest eventoActualizado) {
+		Event eventoExistente = eventDao.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("El evento no existe"));
+
+		eventoExistente.setNombre(eventoActualizado.getNombre());
+		eventoExistente.setDescripcion(eventoActualizado.getDescripcion());
+		eventoExistente.setFechaEvento(eventoActualizado.getFechaEvento());
+		eventoExistente.setHoraEvento(eventoActualizado.getHoraEvento());
+		eventoExistente.setPrecioMinimo(eventoActualizado.getPrecioMinimo());
+		eventoExistente.setPrecioMaximo(eventoActualizado.getPrecioMaximo());
+		eventoExistente.setLocalidad(eventoActualizado.getLocalidad());
+		eventoExistente.setNombreRecinto(eventoActualizado.getNombreRecinto());
+		eventoExistente.setGeneroMusical(eventoActualizado.getGeneroMusica());
+
+		Event eventoGuardado = eventDao.save(eventoExistente);
+		return mapToResponse(eventoGuardado);
+	}
+
 }
