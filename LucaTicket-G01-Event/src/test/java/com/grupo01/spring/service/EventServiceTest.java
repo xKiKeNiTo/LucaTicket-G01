@@ -222,4 +222,47 @@ class EventServiceTest {
 		assertTrue(eventos.isEmpty(), "La lista de eventos debería estar vacía.");
 	}
 
+	@Test
+	void debeModificarEventoYVerificarActualizado() {
+		// Datos iniciales
+		UUID eventId = UUID.randomUUID();
+		Event existingEvent = new Event();
+		existingEvent.setId(eventId);
+		existingEvent.setNombre("Festival de Música");
+		existingEvent.setDescripcion("Concierto al aire libre");
+		existingEvent.setFechaEvento(LocalDate.of(2024, 5, 20));
+		existingEvent.setHoraEvento(LocalTime.of(19, 30));
+		existingEvent.setPrecioMinimo(BigDecimal.valueOf(30.00));
+		existingEvent.setPrecioMaximo(BigDecimal.valueOf(100.00));
+		existingEvent.setLocalidad(Localidad.Madrid);
+		existingEvent.setNombreRecinto("Parque del Retiro");
+		existingEvent.setGeneroMusical("Pop");
+
+		// Actualización
+		EventRequest updateRequest = new EventRequest();
+		updateRequest.setNombre("Festival de Música Actualizado");
+		updateRequest.setDescripcion("Concierto renovado");
+		updateRequest.setFechaEvento(LocalDate.of(2024, 6, 15));
+		updateRequest.setHoraEvento(LocalTime.of(20, 0));
+		updateRequest.setPrecioMinimo(BigDecimal.valueOf(80.00)); // Precio mínimo actualizado
+		updateRequest.setPrecioMaximo(BigDecimal.valueOf(150.00));
+		updateRequest.setLocalidad(Localidad.Barcelona);
+		updateRequest.setNombreRecinto("Parque Güell");
+		updateRequest.setGeneroMusica("Rock");
+
+		// Mockear comportamiento
+		when(eventDao.findById(eventId)).thenReturn(java.util.Optional.of(existingEvent));
+		when(eventDao.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		// Ejecutar actualización
+		EventResponse updatedEvent = eventServiceImpl.updateEvent(eventId, updateRequest);
+
+		// Verificar valores actualizados
+		assertNotNull(updatedEvent);
+		assertEquals("Festival de Música Actualizado", updatedEvent.getNombre());
+		assertEquals(BigDecimal.valueOf(80.00), updatedEvent.getPrecioMinimo()); // Verificar precio mínimo actualizado
+		assertEquals(Localidad.Barcelona, updatedEvent.getLocalidad());
+		verify(eventDao, times(1)).save(any(Event.class));
+	}
+
 }

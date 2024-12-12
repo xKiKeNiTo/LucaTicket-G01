@@ -3,18 +3,23 @@ package com.grupo01.spring.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
 import com.grupo01.spring.model.Event;
+import com.grupo01.spring.model.EventRequest;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -191,12 +196,78 @@ public class EventControllerMockTest {
 		when(eventService.getReferenceById(id)).thenReturn(detalles);
 
 		// Llamar al endpoint
-		mockMvc.perform(get("/eventos/detalles")
-						.param("id", id.toString()))
-				.andExpect(status().isOk())
+		mockMvc.perform(get("/eventos/detalles").param("id", id.toString())).andExpect(status().isOk())
 				.andExpect(content().string(detalles));
 
 		// Verificar interacciones
 		verify(eventService, times(1)).getReferenceById(id);
 	}
+
+	@Test
+	public void debeModificarEventoYDevolverActualizado() throws Exception {
+		// Configurar datos de prueba
+		UUID id = UUID.randomUUID();
+
+		EventRequest eventoActualizado = new EventRequest();
+		eventoActualizado.setNombre("Concierto Actualizado");
+		eventoActualizado.setDescripcion("Evento musical actualizado");
+		eventoActualizado.setFechaEvento(LocalDate.of(2025, 5, 20));
+		eventoActualizado.setHoraEvento(LocalTime.of(19, 0));
+		eventoActualizado.setPrecioMinimo(BigDecimal.valueOf(70.00));
+		eventoActualizado.setPrecioMaximo(BigDecimal.valueOf(150.00));
+		eventoActualizado.setLocalidad(Localidad.Sevilla);
+		eventoActualizado.setNombreRecinto("Plaza de Toros");
+		eventoActualizado.setGeneroMusica("Flamenco");
+
+		EventResponse respuestaActualizada = new EventResponse();
+		respuestaActualizada.setId(id);
+		respuestaActualizada.setNombre(eventoActualizado.getNombre());
+		respuestaActualizada.setDescripcion(eventoActualizado.getDescripcion());
+		respuestaActualizada.setFechaEvento(eventoActualizado.getFechaEvento());
+		respuestaActualizada.setHoraEvento(eventoActualizado.getHoraEvento());
+		respuestaActualizada.setPrecioMinimo(eventoActualizado.getPrecioMinimo());
+		respuestaActualizada.setPrecioMaximo(eventoActualizado.getPrecioMaximo());
+		respuestaActualizada.setLocalidad(eventoActualizado.getLocalidad());
+		respuestaActualizada.setNombreRecinto(eventoActualizado.getNombreRecinto());
+		respuestaActualizada.setGeneroMusica(eventoActualizado.getGeneroMusica());
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("message", "Evento modificado correctamente");
+		response.put("data", respuestaActualizada);
+
+		// Mock del servicio
+		when(eventService.updateEvent(eq(id), any(EventRequest.class))).thenReturn(respuestaActualizada);
+
+		// JSON del evento actualizado
+		String eventoActualizadoJson = """
+				    {
+				        "nombre": "Concierto Actualizado",
+				        "descripcion": "Evento musical actualizado",
+				        "fechaEvento": "2025-05-20",
+				        "horaEvento": "19:00:00",
+				        "precioMinimo": 70.00,
+				        "precioMaximo": 150.00,
+				        "localidad": "Sevilla",
+				        "nombreRecinto": "Plaza de Toros",
+				        "generoMusica": "Flamenco"
+				    }
+				""";
+
+		// Realizar la solicitud PUT y validar la respuesta
+		mockMvc.perform(put("/eventos/edit")
+		        .param("id", id.toString())
+		        .contentType("application/json")
+		        .content(eventoActualizadoJson))
+		    .andExpect(status().isOk())
+		    .andExpect(jsonPath("$.message").value("Evento modificado correctamente"))
+		    .andExpect(jsonPath("$.data.id").value(id.toString()))
+		    .andExpect(jsonPath("$.data.nombre").value("Concierto Actualizado"))
+		    .andExpect(jsonPath("$.data.localidad").value("Sevilla"))
+		    .andExpect(jsonPath("$.data.precioMinimo").value(70.00));
+
+
+		// Verificar interacción con el servicio
+		verify(eventService, times(1)).updateEvent(eq(id), any(EventRequest.class));
+	}
+
 }
