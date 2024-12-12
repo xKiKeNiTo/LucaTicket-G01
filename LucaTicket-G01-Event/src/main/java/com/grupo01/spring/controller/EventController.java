@@ -55,6 +55,28 @@ public class EventController {
 		}
 	}
 
+    /**
+     * Obtener detalles de un evento a partir de un id
+     *
+     * @param id id
+     * @return {@link ResponseEntity}
+     * @see ResponseEntity
+     * @see String
+     */
+    @GetMapping("/detalles")
+    public ResponseEntity<String> obtenerDetallesEvento(@RequestParam UUID id) {
+        try {
+            // Obtiene los detalles del evento
+            String detallesEvento = eventService.getReferenceById(id);
+            return ResponseEntity.ok(detallesEvento);
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Evento no encontrado para el ID proporcionado.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ocurrió un problema al obtener los detalles del evento.");
+        }
+    }
 	@GetMapping("/detalles/{id}")
 	public ResponseEntity<String> obtenerDetallesEvento(@PathVariable @Valid UUID id) {
 		try {

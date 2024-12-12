@@ -26,8 +26,16 @@ public class EventServiceImpl implements EventService {
 		return eventDao.findAll().stream().map(this::mapToResponse).toList();
 	}
 
-	public EventResponse getReferenceById(UUID id) {
-		return mapToResponse(eventDao.getReferenceById(id));
+	public String getReferenceById(UUID id) {
+		EventResponse evento = mapToResponse(eventDao.getReferenceById(id));
+		String detallesEvento = String.format(
+				"El evento '%s' se realiza en %s el dia %s a las %s",
+				evento.getNombre(),
+				evento.getLocalidad(),
+				evento.getFechaEvento(),
+				evento.getHoraEvento()
+		);
+		return detallesEvento;
 	}
 
 	@Override
