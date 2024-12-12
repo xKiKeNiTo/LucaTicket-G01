@@ -24,7 +24,7 @@ public interface EventService {
 	 */
 	EventResponse save(EventRequest eventRequest);
 
-	EventResponse getReferenceById(UUID id);
+	String getReferenceById(UUID id);
 
 	List<EventResponse> findByNombre(String nombre);
 }

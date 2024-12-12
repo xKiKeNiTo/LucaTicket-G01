@@ -53,21 +53,19 @@ public class EventController {
 		}
 	}
 
-    @GetMapping("/detalles/{id}")
-    public ResponseEntity<String> obtenerDetallesEvento(@PathVariable @Valid UUID id) {
+    /**
+     * Obtener detalles de un evento a partir de un id
+     *
+     * @param id id
+     * @return {@link ResponseEntity}
+     * @see ResponseEntity
+     * @see String
+     */
+    @GetMapping("/detalles")
+    public ResponseEntity<String> obtenerDetallesEvento(@RequestParam UUID id) {
         try {
-            // Retrieve the event details using the service
-            EventResponse evento = eventService.getReferenceById(id);
-
-            // Convert the event details to a single-line string
-            String detallesEvento = String.format(
-                    "El evento '%s' se realiza en %s el dia %s a las %s",
-                    evento.getNombre(),
-                    evento.getLocalidad(),
-                    evento.getFechaEvento(),
-                    evento.getHoraEvento()
-            );
-
+            // Obtiene los detalles del evento
+            String detallesEvento = eventService.getReferenceById(id);
             return ResponseEntity.ok(detallesEvento);
         } catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

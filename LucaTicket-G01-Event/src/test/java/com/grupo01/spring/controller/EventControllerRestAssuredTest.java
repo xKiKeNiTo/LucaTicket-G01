@@ -1,10 +1,17 @@
 package com.grupo01.spring.controller;
 
+import com.grupo01.spring.model.EventResponse;
+import com.grupo01.spring.model.Localidad;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
@@ -78,6 +85,22 @@ public class EventControllerRestAssuredTest {
 	            "El nombre del evento no puede estar vacío",
 	            "La fecha del evento no puede estar vacía"
 	        ));
+	}
+
+	@Test
+	public void debeDevolverDetallesEvento() {
+		String id = "7e3b390b-671c-499b-b9c5-40f80dc2547e";
+
+		String detalles = "El evento 'Concierto de Jazz' se realiza en Barcelona el dia 2024-06-10 a las 18:00";
+
+		// Perform the test
+		RestAssured.given()
+				.queryParam("id", id)
+				.when()
+				.get("/detalles")
+				.then()
+				.statusCode(200) // Assert 200 OK
+				.body(org.hamcrest.Matchers.equalTo(detalles)); // Assert body matches
 	}
 
 }
