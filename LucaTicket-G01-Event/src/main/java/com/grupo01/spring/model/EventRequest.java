@@ -7,8 +7,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public class EventRequest implements Serializable {
 
@@ -26,12 +28,19 @@ public class EventRequest implements Serializable {
 	@NotNull(message = "La hora del evento no puede estar vacía")
 	private LocalTime horaEvento;
 
+	@Positive(message = "El precio máximo debe ser mayor que 0")
 	@NotNull(message = "El precio máximo del evento no puede estar vacío")
 	private BigDecimal precioMaximo;
 
+	@Positive(message = "El precio mínimo debe ser mayor que 0")
 	@NotNull(message = "El precio mínimo del evento no puede estar vacío")
 	private BigDecimal precioMinimo;
 
+	@AssertTrue(message = "El precio mínimo debe ser menor que el precio máximo")
+    public boolean isPrecioMinimoMenorQuePrecioMaximo() {
+        return precioMinimo != null && precioMaximo != null && precioMinimo.compareTo(precioMaximo) < 0;
+    }
+	
 	@NotNull(message = "La localidad del evento no puede estar vacía")
 	private Localidad localidad;
 
@@ -87,7 +96,9 @@ public class EventRequest implements Serializable {
 		this.precioMinimo = precioMinimo;
 	}
 
-	public Localidad getLocalidad() {return localidad;}
+	public Localidad getLocalidad() {
+		return localidad;
+	}
 
 	public void setLocalidad(Localidad localidad) {
 		this.localidad = localidad;
