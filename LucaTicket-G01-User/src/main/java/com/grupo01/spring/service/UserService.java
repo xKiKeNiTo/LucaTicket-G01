@@ -1,5 +1,8 @@
 package com.grupo01.spring.service;
 
-public interface UserService {
+import com.grupo01.spring.model.UserRequest;
+import com.grupo01.spring.model.UserResponse;
 
+public interface UserService {
+    UserResponse save(UserRequest userRequest);
 }

@@ -3,10 +3,18 @@ package com.grupo01.spring.service;
 import com.grupo01.spring.model.User;
 import com.grupo01.spring.model.UserRequest;
 import com.grupo01.spring.model.UserResponse;
+import com.grupo01.spring.repository.UserDao;
+import jakarta.transaction.Transactional;
 
 public class UserServiceImpl implements UserService {
 
-	UserResponse mapToResponse(User user) {
+	private final UserDao userDao;
+
+    public UserServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    UserResponse mapToResponse(User user) {
 	    return new UserResponse(
 	        user.getMail(),
 	        user.getNombre(),
@@ -24,4 +32,11 @@ public class UserServiceImpl implements UserService {
 		return event;
 	}
 
+	@Override
+	@Transactional
+	public UserResponse save(UserRequest userRequest) {
+		User event = mapToEntity(userRequest);
+		User savedEvent = userDao.save(event);
+		return mapToResponse(savedEvent);
+	}
 }
