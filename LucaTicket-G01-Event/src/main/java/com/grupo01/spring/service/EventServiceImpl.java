@@ -7,9 +7,12 @@ import com.grupo01.spring.repository.EventDao;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -28,13 +31,8 @@ public class EventServiceImpl implements EventService {
 
 	public String getReferenceById(UUID id) {
 		EventResponse evento = mapToResponse(eventDao.getReferenceById(id));
-		String detallesEvento = String.format(
-				"El evento '%s' se realiza en %s el dia %s a las %s",
-				evento.getNombre(),
-				evento.getLocalidad(),
-				evento.getFechaEvento(),
-				evento.getHoraEvento()
-		);
+		String detallesEvento = String.format("El evento '%s' se realiza en %s el dia %s a las %s", evento.getNombre(),
+				evento.getLocalidad(), evento.getFechaEvento(), evento.getHoraEvento());
 		return detallesEvento;
 	}
 
@@ -59,8 +57,8 @@ public class EventServiceImpl implements EventService {
 		event.setDescripcion(request.getDescripcion());
 		event.setFechaEvento(request.getFechaEvento());
 		event.setHoraEvento(request.getHoraEvento());
-		event.setPrecioMinimo(request.getPrecioMinimo());
 		event.setPrecioMaximo(request.getPrecioMaximo());
+		event.setPrecioMinimo(request.getPrecioMinimo());
 		event.setLocalidad(request.getLocalidad());
 		event.setNombreRecinto(request.getNombreRecinto());
 		event.setGeneroMusical(request.getGeneroMusica());
@@ -68,10 +66,20 @@ public class EventServiceImpl implements EventService {
 	}
 
 	EventResponse mapToResponse(Event event) {
-		return new EventResponse(event.getId(), event.getNombre(), event.getDescripcion(), event.getFechaEvento(),
-				event.getHoraEvento(), event.getPrecioMinimo(), event.getPrecioMaximo(), event.getLocalidad(),
-				event.getNombreRecinto(), event.getGeneroMusical());
+	    return new EventResponse(
+	        event.getId(),
+	        event.getNombre(),
+	        event.getDescripcion(),
+	        event.getFechaEvento(),
+	        event.getHoraEvento(),
+	        event.getPrecioMaximo(),
+	        event.getPrecioMinimo(),
+	        event.getLocalidad(),
+	        event.getNombreRecinto(),
+	        event.getGeneroMusical()
+	    );
 	}
+
 
 	@Override
 	public EventResponse updateEvent(UUID id, EventRequest eventoActualizado) {
@@ -90,6 +98,26 @@ public class EventServiceImpl implements EventService {
 
 		Event eventoGuardado = eventDao.save(eventoExistente);
 		return mapToResponse(eventoGuardado);
+	}
+	
+	/**
+	 * Elimina un evento de la base de datos dado su ID.
+	 *
+	 * @param id ID del evento a eliminar.
+	 * @return El evento eliminado.
+	 * @throws RuntimeException Si el evento no se encuentra.
+	 */
+	@Override
+	@Transactional
+	public EventResponse deleteEventById(UUID id) {
+		Optional<Event> eventOptional = eventDao.findById(id);  // Busca el evento en la base de datos
+		if (eventOptional.isPresent()) {
+			Event eventoEliminado = eventOptional.get();
+			eventDao.delete(eventoEliminado);  // Elimina el evento
+			return mapToResponse(eventoEliminado);  // Mapea el evento a un EventResponse
+		} else {
+			throw new RuntimeException("Evento con ID " + id + " no encontrado para eliminar.");
+		}
 	}
 
 }

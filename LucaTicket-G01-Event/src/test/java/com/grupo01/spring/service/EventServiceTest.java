@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -89,7 +90,7 @@ class EventServiceTest {
 
 		Event event = new Event(generatedId, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
 				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Madrid,
-				"Wanda Metropolitano", "Rock");
+				"Estadio Metropolitano", "Rock");
 
 		EventResponse response = eventServiceImpl.mapToResponse(event);
 
@@ -222,4 +223,69 @@ class EventServiceTest {
 		assertTrue(eventos.isEmpty(), "La lista de eventos debería estar vacía.");
 	}
 
+	@Test
+	void debeModificarEventoYVerificarActualizado() {
+		// Datos iniciales
+		UUID eventId = UUID.randomUUID();
+		Event existingEvent = new Event();
+		existingEvent.setId(eventId);
+		existingEvent.setNombre("Festival de Música");
+		existingEvent.setDescripcion("Concierto al aire libre");
+		existingEvent.setFechaEvento(LocalDate.of(2024, 5, 20));
+		existingEvent.setHoraEvento(LocalTime.of(19, 30));
+		existingEvent.setPrecioMinimo(BigDecimal.valueOf(30.00));
+		existingEvent.setPrecioMaximo(BigDecimal.valueOf(100.00));
+		existingEvent.setLocalidad(Localidad.Madrid);
+		existingEvent.setNombreRecinto("Parque del Retiro");
+		existingEvent.setGeneroMusical("Pop");
+
+		// Actualización
+		EventRequest updateRequest = new EventRequest();
+		updateRequest.setNombre("Festival de Música Actualizado");
+		updateRequest.setDescripcion("Concierto renovado");
+		updateRequest.setFechaEvento(LocalDate.of(2024, 6, 15));
+		updateRequest.setHoraEvento(LocalTime.of(20, 0));
+		updateRequest.setPrecioMinimo(BigDecimal.valueOf(80.00)); // Precio mínimo actualizado
+		updateRequest.setPrecioMaximo(BigDecimal.valueOf(150.00));
+		updateRequest.setLocalidad(Localidad.Barcelona);
+		updateRequest.setNombreRecinto("Parque Güell");
+		updateRequest.setGeneroMusica("Rock");
+
+		// Mockear comportamiento
+		when(eventDao.findById(eventId)).thenReturn(java.util.Optional.of(existingEvent));
+		when(eventDao.save(any(Event.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		// Ejecutar actualización
+		EventResponse updatedEvent = eventServiceImpl.updateEvent(eventId, updateRequest);
+
+		// Verificar valores actualizados
+		assertNotNull(updatedEvent);
+		assertEquals("Festival de Música Actualizado", updatedEvent.getNombre());
+		assertEquals(BigDecimal.valueOf(80.00), updatedEvent.getPrecioMinimo()); // Verificar precio mínimo actualizado
+		assertEquals(Localidad.Barcelona, updatedEvent.getLocalidad());
+		verify(eventDao, times(1)).save(any(Event.class));
+	}
+	
+	@Test
+	void debeEliminarEventoPorId() {
+        UUID eventId = UUID.randomUUID(); // Genera ID para el evento
+        // Crea un evento para la prueba
+        Event event = new Event(eventId, "Concierto de Rock", "Un concierto épico", LocalDate.of(2024, 12, 25),
+				LocalTime.of(20, 0), BigDecimal.valueOf(50.00), BigDecimal.valueOf(150.00), Localidad.Madrid,
+				"Estadio Metropolitano", "Rock"); 
+
+        // Simula que el repositorio devuelve el evento cuando se busca por ID
+        when(eventDao.findById(eventId)).thenReturn(Optional.of(event));
+
+        // Llama al servicio para eliminar el evento
+        EventResponse eventoEliminado = eventServiceImpl.deleteEventById(eventId);
+
+        // Comprueba que el evento ha sido eliminado correctamente
+        assertNotNull(eventoEliminado, "El evento eliminado no debe ser nulo");
+        assertEquals(eventId, eventoEliminado.getId(), "El ID del evento eliminado debe coincidir");
+
+        // Verifica que el repositorio fue llamado exactamente una vez
+        verify(eventDao, times(1)).delete(event);    
+	}
+		
 }

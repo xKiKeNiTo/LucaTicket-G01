@@ -3,6 +3,7 @@ package com.grupo01.spring.controller;
 import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.model.Localidad;
 import io.restassured.RestAssured;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,14 +19,14 @@ import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class EventControllerRestAssuredTest {
-
+	
 	@LocalServerPort
 	private int port;
 
 	@BeforeEach
 	public void setUp() {
 		RestAssured.port = port;
-		RestAssured.basePath = "/eventos";
+		RestAssured.basePath = "/eventos";				
 	}
 
 	@Test
@@ -54,6 +55,7 @@ public class EventControllerRestAssuredTest {
 
 		given().contentType("application/json").body(nuevoEventoJson).when().post("/save").then().statusCode(201)
 				.body("nombre", equalTo("Concierto de Jazz")).body("localidad", equalTo("Barcelona"));
+
 	}
 
 	@Test
@@ -100,8 +102,44 @@ public class EventControllerRestAssuredTest {
 				.when()
 				.get("/detalles")
 				.then()
-				.statusCode(200) // Assert 200 OK
-				.body(org.hamcrest.Matchers.equalTo(detalles)); // Assert body matches
+				.statusCode(200)
+				.body(org.hamcrest.Matchers.equalTo(detalles));
 	}
+
+	@Test
+    public void debeModificarEvento() {
+        String id = "28fb994c-2ef1-4045-8f6c-49610e824b65";
+
+        // JSON de evento actualizado
+        String eventoActualizadoJson = """
+                {
+                    "nombre": "Concierto Modificado",
+                    "descripcion": "Descripción actualizada del evento",
+                    "fechaEvento": "2024-12-20",
+                    "horaEvento": "19:00:00",
+                    "precioMinimo": 70.00,
+                    "precioMaximo": 150.00,
+                    "localidad": "Sevilla",
+                    "nombreRecinto": "Auditorio Sevilla",
+                    "generoMusica": "Rock"
+                }
+                """;
+
+        given()
+            .contentType("application/json")
+            .queryParam("id", id)
+            .body(eventoActualizadoJson)
+        .when()
+            .put("/edit")
+        .then()
+            .statusCode(200)
+            .body("message", equalTo("Evento modificado correctamente"))
+            .body("data.id", equalTo(id))
+            .body("data.nombre", equalTo("Concierto Modificado"))
+            .body("data.descripcion", equalTo("Descripción actualizada del evento"))
+            .body("data.localidad", equalTo("Sevilla"))
+            .body("data.precioMinimo", equalTo(70.00f))
+            .body("data.precioMaximo", equalTo(150.00f));
+    }
 
 }
