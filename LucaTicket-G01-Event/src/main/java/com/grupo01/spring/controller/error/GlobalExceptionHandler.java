@@ -99,14 +99,16 @@ public class GlobalExceptionHandler {
 		return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), fieldName);
 	}
 
-	/**
-	 * Captura excepciones por JSON mal formado o no legible.
-	 *
-	 * @param ex Excepción lanzada por Jackson o errores de formato JSON.
-	 * @return Respuesta con el mensaje de error y código HTTP.
-	 */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+		// Verificar si la causa es una InvalidFormatException
+		Throwable cause = ex.getCause();
+		if (cause instanceof InvalidFormatException) {
+			// Delegar el manejo al método de InvalidFormatException
+			return handleInvalidFormatException((InvalidFormatException) cause);
+		}
+
+		// Manejo genérico para otros casos
 		String message = "Error en el formato del JSON";
 		return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), null);
 	}
