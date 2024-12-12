@@ -1,9 +1,8 @@
 package com.grupo01.spring.controller;
 
-import com.grupo01.spring.model.User;
 import com.grupo01.spring.model.UserRequest;
 import com.grupo01.spring.model.UserResponse;
-import com.grupo01.spring.service.UserService;
+import com.grupo01.spring.service.UserServiceImpl;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     /**
      * Endpoint para crear un nuevo usuario
@@ -23,10 +22,10 @@ public class UserController {
      * @param userRequest datos del usuario a crear.
      * @return ResponseEntity con UserResponse y el estado HTTP.
      */
-    @PostMapping
+    @PostMapping("/save")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
        
-        User createdUser = userService.createUser(userRequest);
+        UserResponse createdUser = userServiceImpl.save(userRequest);
 
         UserResponse userResponse = new UserResponse(
                 createdUser.getMail(),

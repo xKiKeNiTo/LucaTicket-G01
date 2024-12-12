@@ -181,4 +181,12 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(Map.of("errors", List.of(error)), HttpStatus.BAD_REQUEST);
 	}
 
+	@ExceptionHandler(DuplicateUserException.class)
+	public ResponseEntity<Object> handleDuplicateUserException(DuplicateUserException ex) {
+		Map<String, Object> error = new HashMap<>();
+		error.put("message", ex.getMessage());
+		error.put("code", HttpStatus.CONFLICT.value());
+		return new ResponseEntity<>(Map.of("errors", List.of(error)), HttpStatus.CONFLICT);
+	}
+
 }
