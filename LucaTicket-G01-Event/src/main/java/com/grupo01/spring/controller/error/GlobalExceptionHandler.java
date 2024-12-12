@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -159,6 +160,23 @@ public class GlobalExceptionHandler {
 		String message = String.format("El parámetro requerido '%s' de tipo '%s' no está presente.", paramName,
 				paramType);
 		return buildErrorResponse(message, HttpStatus.BAD_REQUEST.value(), paramName);
+	}
+
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+		String parameterName = ex.getName();
+		String providedValue = ex.getValue() != null ? ex.getValue().toString() : "null";
+		String expectedType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+		String message = String.format(
+				"El parámetro '%s' con valor '%s' no es válido. Se esperaba un valor del tipo '%s'.", parameterName,
+				providedValue, expectedType);
+
+		Map<String, Object> error = new HashMap<>();
+		error.put("message", message);
+		error.put("code", HttpStatus.BAD_REQUEST.value());
+		error.put("parameter", parameterName);
+
+		return new ResponseEntity<>(Map.of("errors", List.of(error)), HttpStatus.BAD_REQUEST);
 	}
 
 }
