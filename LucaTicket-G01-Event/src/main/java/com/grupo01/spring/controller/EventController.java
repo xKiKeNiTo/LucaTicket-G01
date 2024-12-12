@@ -53,49 +53,40 @@ public class EventController {
 		}
 	}
 
-	@GetMapping("/detalles/{id}")
-	public ResponseEntity<String> obtenerDetallesEvento(@PathVariable @Valid UUID id) {
-		try {
-			// Retrieve the event details using the service
-			EventResponse evento = eventService.getReferenceById(id);
+    @GetMapping("/detalles/{id}")
+    public ResponseEntity<String> obtenerDetallesEvento(@PathVariable @Valid UUID id) {
+        try {
+            // Retrieve the event details using the service
+            EventResponse evento = eventService.getReferenceById(id);
 
-			// Convert the event details to a single-line string
-			String detallesEvento = String.format("El evento '%s' se realiza en %s el dia %s a las %s",
-					evento.getNombre(), evento.getLocalidad(), evento.getFechaEvento(), evento.getHoraEvento());
+            // Convert the event details to a single-line string
+            String detallesEvento = String.format(
+                    "El evento '%s' se realiza en %s el dia %s a las %s",
+                    evento.getNombre(),
+                    evento.getLocalidad(),
+                    evento.getFechaEvento(),
+                    evento.getHoraEvento()
+            );
 
-			return ResponseEntity.ok(detallesEvento);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Evento no encontrado para el ID proporcionado.");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Ocurrió un problema al obtener los detalles del evento.");
-		}
-	}
+            return ResponseEntity.ok(detallesEvento);
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Evento no encontrado para el ID proporcionado.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ocurrió un problema al obtener los detalles del evento.");
+        }
+    }
+
 
 	@GetMapping("/nombre")
 	public ResponseEntity<Map<String, Object>> listarEventosPorNombre(@RequestParam String nombre) {
-		List<EventResponse> eventos = eventService.findByNombreContainsIgnoreCase(nombre);
-		Map<String, Object> response = new HashMap<>();
-		response.put("totalEventos", eventos.size());
-		response.put("eventos", eventos);
-		return ResponseEntity.ok(response);
+	    List<EventResponse> eventos = eventService.findByNombreContainsIgnoreCase(nombre);
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("totalEventos", eventos.size());
+	    response.put("eventos", eventos);
+	    return ResponseEntity.ok(response);
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<EventResponse> modificarEvento(@PathVariable UUID id,
-			@RequestBody @Valid EventRequest eventoActualizado) {
-		try {
-			EventResponse eventoModificado = eventService.updateEvent(id, eventoActualizado);
-			return ResponseEntity.ok(eventoModificado);
-		} catch (EntityNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body(new EventResponse("Error: El evento con el ID especificado no existe."));
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(new EventResponse("Error: Datos de entrada inválidos."));
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(new EventResponse("Error: Ocurrió un problema al modificar el evento."));
-		}
-	}
 
 }
