@@ -1,6 +1,5 @@
 package com.grupo01.spring.controller;
 
-import com.grupo01.spring.model.User;
 import com.grupo01.spring.model.UserRequest;
 import com.grupo01.spring.model.UserResponse;
 import com.grupo01.spring.service.UserService;
@@ -14,27 +13,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+	@Autowired
+	private UserService userService;
 
-    /**
-     * Endpoint para crear un nuevo usuario
-     *
-     * @param userRequest datos del usuario a crear.
-     * @return ResponseEntity con UserResponse y el estado HTTP.
-     */
-    @PostMapping
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
-       
-        User createdUser = userService.createUser(userRequest);
+	/**
+	 * Endpoint para crear un nuevo usuario
+	 *
+	 * @param userRequest datos del usuario a crear.
+	 * @return ResponseEntity con UserResponse y el estado HTTP.
+	 */
+	@PostMapping
+	public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
 
-        UserResponse userResponse = new UserResponse(
-                createdUser.getMail(),
-                createdUser.getNombre(),
-                createdUser.getApellido(),
-                createdUser.getFechaAlta()
-        );
+		UserRequest userRequestDomain = new UserRequest(userRequest.getMail(), userRequest.getNombre(),
+				userRequest.getApellido(), userRequest.getContrasena());
 
-        return ResponseEntity.status(201).body(userResponse);
-    }
+		UserResponse userResponseDomain = userService.save(userRequestDomain);
+
+		UserResponse userResponse = new UserResponse(userResponseDomain.getMail(), userResponseDomain.getNombre(),
+				userResponseDomain.getApellido(), userResponseDomain.getFechaAlta());
+
+		return ResponseEntity.status(201).body(userResponse);
+	}
 }
