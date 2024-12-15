@@ -3,15 +3,21 @@ package com.grupo01.spring.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grupo01.spring.feignClient.BancoClient;
+import com.grupo01.spring.feignClient.UserClient;
 import com.grupo01.spring.model.BancoRequest;
 import com.grupo01.spring.model.BancoResponse;
+import com.grupo01.spring.model.Compra;
 import com.grupo01.spring.model.CompraRequest;
 import com.grupo01.spring.model.CompraResponse;
+import com.grupo01.spring.model.UserResponse;
+import com.grupo01.spring.repository.CompraRepository;
+
 import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,9 +28,13 @@ public class CompraServiceImpl implements CompraService {
 	private static final Logger logger = LoggerFactory.getLogger(CompraServiceImpl.class);
 
 	private final BancoClient bancoClient;
+	private final CompraRepository compraRepository;
+	private final UserClient userClient;
 
-	public CompraServiceImpl(BancoClient bancoClient) {
+	public CompraServiceImpl(BancoClient bancoClient, CompraRepository compraRepository, UserClient userClient) {
 		this.bancoClient = bancoClient;
+		this.compraRepository = compraRepository;
+		this.userClient = userClient;
 	}
 
 	@Override
@@ -32,10 +42,22 @@ public class CompraServiceImpl implements CompraService {
 		// Paso 1: Validar Usuario
 		String token = validarUser();
 
-		// Paso 2: Validar Compra
+		// Paso 2: Obtener datos del Usuario
+		logger.info("Consultando datos del usuario: {}", compraRequest.getEmail());
+		UserResponse userResponse = userClient.getUserByEmail(compraRequest.getEmail());
+
+		// Paso 3: Validar Compra
 		BancoResponse bancoResponse = validarCompra(compraRequest.getBancoRequest(), token);
 
-		// Paso 3: Retornar la respuesta de éxito
+		// Paso 4: Guardar Compra en la Base de Datos
+		Compra compra = new Compra();
+		compra.setIdEvent(compraRequest.getEventId());
+		compra.setUserMail(userResponse.getEmail());
+		compra.setPrecio(compraRequest.getBancoRequest().getCantidad());
+		compra.setFechaCompra(LocalDateTime.now());
+		compraRepository.save(compra);
+
+		// Paso 5: Retornar la respuesta de éxito
 		logger.info("Compra validada y procesada exitosamente. Transaction ID: {}", bancoResponse.getCodigo());
 
 		return new CompraResponse("Compra realizada con éxito", true, bancoResponse.getCodigo(),
