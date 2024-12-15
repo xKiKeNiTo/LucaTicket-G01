@@ -13,16 +13,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/compras")
 public class CompraController {
 
-    @Autowired
-    private CompraService compraService;
+	@Autowired
+	private CompraService compraService;
 
-    @PostMapping("/save")
-    public ResponseEntity<CompraResponse> realizarCompra(@Valid @RequestBody CompraRequest compraRequest) {
-        try {
-            CompraResponse response = compraService.registrarCompra(compraRequest);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new CompraResponse("Error: " + e.getMessage(), false, null, null));
-        }
-    }
+	@PostMapping("/save")
+	public ResponseEntity<CompraResponse> realizarCompra(@Valid @RequestBody CompraRequest compraRequest) {
+		CompraResponse response = compraService.registrarCompra(compraRequest);
+		return ResponseEntity.ok(response);
+	}
 }

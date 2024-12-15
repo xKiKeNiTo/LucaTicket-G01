@@ -13,7 +13,6 @@ public interface BancoClient {
 	@PostMapping("/validaruser")
 	Map<String, String> autenticarUsuario(@RequestParam Map<String, String> credentials);
 
-
-    @PostMapping("/validacion")
-    BancoResponse validarCompra(@RequestBody BancoRequest bancoRequest, @RequestHeader("Authorization") String token);
+	@PostMapping("/validacion")
+	BancoResponse validarCompra(@RequestBody BancoRequest bancoRequest, @RequestHeader("Authorization") String token);
 }
