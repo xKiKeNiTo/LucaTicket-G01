@@ -158,7 +158,7 @@ class EventServiceTest {
 		when(eventDao.getReferenceById(id)).thenReturn(evento);
 
 		// Llamar a la función
-		String detalles = eventServiceImpl.getReferenceById(id);
+		EventResponse detalles = eventServiceImpl.getReferenceById(id);
 
 		// String esperado
 		String esperado = "El evento 'Test' se realiza en Madrid el dia 2024-01-01 a las 00:00";

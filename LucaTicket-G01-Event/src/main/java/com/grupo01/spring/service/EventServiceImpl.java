@@ -29,11 +29,9 @@ public class EventServiceImpl implements EventService {
 		return eventDao.findAll().stream().map(this::mapToResponse).toList();
 	}
 
-	public String getReferenceById(UUID id) {
-		EventResponse evento = mapToResponse(eventDao.getReferenceById(id));
-		String detallesEvento = String.format("El evento '%s' se realiza en %s el dia %s a las %s", evento.getNombre(),
-				evento.getLocalidad(), evento.getFechaEvento(), evento.getHoraEvento());
-		return detallesEvento;
+	public EventResponse getReferenceById(UUID id) {
+		Event evento = eventDao.findById(id).orElseThrow(() -> new IllegalArgumentException("Evento no encontrado"));
+		return mapToResponse(evento);
 	}
 
 	@Override
@@ -66,20 +64,10 @@ public class EventServiceImpl implements EventService {
 	}
 
 	EventResponse mapToResponse(Event event) {
-	    return new EventResponse(
-	        event.getId(),
-	        event.getNombre(),
-	        event.getDescripcion(),
-	        event.getFechaEvento(),
-	        event.getHoraEvento(),
-	        event.getPrecioMaximo(),
-	        event.getPrecioMinimo(),
-	        event.getLocalidad(),
-	        event.getNombreRecinto(),
-	        event.getGeneroMusical()
-	    );
+		return new EventResponse(event.getId(), event.getNombre(), event.getDescripcion(), event.getFechaEvento(),
+				event.getHoraEvento(), event.getPrecioMaximo(), event.getPrecioMinimo(), event.getLocalidad(),
+				event.getNombreRecinto(), event.getGeneroMusical());
 	}
-
 
 	@Override
 	public EventResponse updateEvent(UUID id, EventRequest eventoActualizado) {
@@ -99,7 +87,7 @@ public class EventServiceImpl implements EventService {
 		Event eventoGuardado = eventDao.save(eventoExistente);
 		return mapToResponse(eventoGuardado);
 	}
-	
+
 	/**
 	 * Elimina un evento de la base de datos dado su ID.
 	 *
@@ -110,11 +98,11 @@ public class EventServiceImpl implements EventService {
 	@Override
 	@Transactional
 	public EventResponse deleteEventById(UUID id) {
-		Optional<Event> eventOptional = eventDao.findById(id);  // Busca el evento en la base de datos
+		Optional<Event> eventOptional = eventDao.findById(id); // Busca el evento en la base de datos
 		if (eventOptional.isPresent()) {
 			Event eventoEliminado = eventOptional.get();
-			eventDao.delete(eventoEliminado);  // Elimina el evento
-			return mapToResponse(eventoEliminado);  // Mapea el evento a un EventResponse
+			eventDao.delete(eventoEliminado); // Elimina el evento
+			return mapToResponse(eventoEliminado); // Mapea el evento a un EventResponse
 		} else {
 			throw new RuntimeException("Evento con ID " + id + " no encontrado para eliminar.");
 		}

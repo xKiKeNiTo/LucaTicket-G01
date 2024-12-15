@@ -1,7 +1,9 @@
 package com.grupo01.spring.service;
 
-import com.grupo01.spring.model.Compra;
+import com.grupo01.spring.model.CompraRequest;
+import com.grupo01.spring.model.CompraResponse;
 
 public interface CompraService {
-	Compra registrarCompra(Compra compra);
+    CompraResponse registrarCompra(CompraRequest compraRequest);
 }
+

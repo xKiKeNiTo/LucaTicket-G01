@@ -62,20 +62,20 @@ public class EventController {
      * @see ResponseEntity
      * @see String
      */
-    @GetMapping("/detalles")
-    public ResponseEntity<String> obtenerDetallesEvento(@RequestParam UUID id) {
-        try {
-            // Obtiene los detalles del evento
-            String detallesEvento = eventService.getReferenceById(id);
-            return ResponseEntity.ok(detallesEvento);
-        } catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Evento no encontrado para el ID proporcionado.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Ocurrió un problema al obtener los detalles del evento.");
-        }
-    }
+	@GetMapping("/detalles")
+	public ResponseEntity<EventResponse> obtenerDetallesEvento(@RequestParam UUID id) {
+	    try {
+	        EventResponse detallesEvento = eventService.getReferenceById(id);
+	        return ResponseEntity.ok(detallesEvento);
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body(new EventResponse("Evento no encontrado para el ID proporcionado."));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body(new EventResponse("Ocurrió un problema al obtener los detalles del evento."));
+	    }
+	}
+
 
 	@GetMapping("/nombre")
 	public ResponseEntity<Map<String, Object>> listarEventosPorNombre(@RequestParam String nombre) {

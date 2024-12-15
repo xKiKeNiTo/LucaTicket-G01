@@ -1,42 +1,18 @@
 package com.grupo01.spring.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
-public class BancoRequest implements Serializable {
-	
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 3L;
-
-	@NotBlank(message = "El nombre del titular no puede estar vacío")
+public class BancoRequest {
 	private String nombreTitular;
-	
-    @NotBlank(message = "El número de tarjeta no puede estar vacío")
-	private String numeroTarjeta; 
-	
-    @NotNull(message = "El mes no puede estar vacío")
-	private int mesCaducidad; 
-	
-    @NotNull(message = "El año no puede estar vacío")
-	private int yearCaducidad; 
-	
-    @NotNull(message = "El código CVV no puede estar vacío")
-	private int cvv; 
-	
-    @NotBlank(message = "El emisor no puede estar vacío")
-	private String emisor; 
-    
-    @NotBlank(message = "El concepto no puede estar vacío")
-	private String concepto; 
-	
-    @NotNull(message = "La cantidad no puede estar vacía")
+	private String numeroTarjeta;
+	private String mesCaducidad;
+	private String yearCaducidad;
+	private String cvv;
+	private String emisor;
+	private String concepto;
 	private BigDecimal cantidad;
 
+	// Getters and Setters
 	public String getNombreTitular() {
 		return nombreTitular;
 	}
@@ -53,27 +29,27 @@ public class BancoRequest implements Serializable {
 		this.numeroTarjeta = numeroTarjeta;
 	}
 
-	public int getMesCaducidad() {
+	public String getMesCaducidad() {
 		return mesCaducidad;
 	}
 
-	public void setMesCaducidad(int mesCaducidad) {
+	public void setMesCaducidad(String mesCaducidad) {
 		this.mesCaducidad = mesCaducidad;
 	}
 
-	public int getYearCaducidad() {
+	public String getYearCaducidad() {
 		return yearCaducidad;
 	}
 
-	public void setYearCaducidad(int yearCaducidad) {
+	public void setYearCaducidad(String yearCaducidad) {
 		this.yearCaducidad = yearCaducidad;
 	}
 
-	public int getCvv() {
+	public String getCvv() {
 		return cvv;
 	}
 
-	public void setCvv(int cvv) {
+	public void setCvv(String cvv) {
 		this.cvv = cvv;
 	}
 
@@ -100,5 +76,4 @@ public class BancoRequest implements Serializable {
 	public void setCantidad(BigDecimal cantidad) {
 		this.cantidad = cantidad;
 	}
-        	
 }
