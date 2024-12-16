@@ -29,4 +29,10 @@ public class BancoResponse {
 	public void setSuccess(boolean success) {
 		this.success = success;
 	}
+
+	@Override
+	public String toString() {
+		return "BancoResponse [codigo=" + codigo + ", mensaje=" + mensaje + ", success=" + success + "]";
+	}
+	
 }
