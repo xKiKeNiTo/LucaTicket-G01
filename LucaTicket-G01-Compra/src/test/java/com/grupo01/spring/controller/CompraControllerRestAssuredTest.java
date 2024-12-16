@@ -64,7 +64,7 @@ public class CompraControllerRestAssuredTest {
     @Test
     public void debeDevolver400CuandoDatosDeCompraSonInvalidos() {
 
-        //Envio un id de evento inexistente
+        //Envio un cvv no valido
         String nuevaCompra = """
                 {
                   "email": "kike.verac@gmail.com",
