@@ -9,6 +9,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CompraControllerRestAssuredTest {
@@ -55,8 +56,8 @@ public class CompraControllerRestAssuredTest {
 
         // Verifico la respuesta
         response.then()
-                .statusCode(500) // Expected error status
-                .body("error", equalTo("Internal Server Error"));
+                .statusCode(400) // Expected error status
+                .body("errors[0].message", startsWith("Error en la solicitud al servicio externo"));
 
     }
 }
