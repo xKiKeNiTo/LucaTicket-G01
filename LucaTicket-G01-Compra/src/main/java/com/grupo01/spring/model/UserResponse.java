@@ -30,4 +30,12 @@ public class UserResponse {
     public void setEmail(String email) {
         this.email = email;
     }
+
+	public UserResponse(String idUsuario, String nombre, String email) {
+		super();
+		this.idUsuario = idUsuario;
+		this.nombre = nombre;
+		this.email = email;
+	}    
+    
 }

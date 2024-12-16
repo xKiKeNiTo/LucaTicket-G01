@@ -94,16 +94,28 @@ public class EventControllerRestAssuredTest {
 	public void debeDevolverDetallesEvento() {
 		String id = "7e3b390b-671c-499b-b9c5-40f80dc2547e";
 
-		String detalles = "El evento 'Concierto de Jazz' se realiza en Barcelona el dia 2024-06-10 a las 18:00";
+		  // Datos simulados de EventResponse
+	    String nombre = "Concierto de Jazz";
+	    String fechaEvento = "2024-06-10";
+	    String horaEvento = "18:00:00";
+	    BigDecimal precioMinimo = BigDecimal.valueOf(30.00);
+	    BigDecimal precioMaximo = BigDecimal.valueOf(100.00);
+	    String localidad = "Barcelona";
 
-		// Perform the test
-		RestAssured.given()
-				.queryParam("id", id)
-				.when()
-				.get("/detalles")
-				.then()
-				.statusCode(200)
-				.body(org.hamcrest.Matchers.equalTo(detalles));
+	    // Realiza la prueba
+	    RestAssured.given()
+	            .queryParam("id", id)
+	            .when()
+	            .get("/detalles")
+	            .then()
+	            .statusCode(200)
+	            .body("id", org.hamcrest.Matchers.equalTo(id))
+	            .body("nombre", org.hamcrest.Matchers.equalTo(nombre))
+	            .body("fechaEvento", org.hamcrest.Matchers.equalTo(fechaEvento))
+	            .body("horaEvento", org.hamcrest.Matchers.equalTo(horaEvento))
+	            .body("precioMinimo", org.hamcrest.Matchers.equalTo(30.0F))
+	            .body("precioMaximo", org.hamcrest.Matchers.equalTo(100.0F))
+	            .body("localidad", org.hamcrest.Matchers.equalTo(localidad));
 	}
 
 	@Test
