@@ -27,12 +27,14 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.grupo01.spring.feignClient.BancoClient;
+import com.grupo01.spring.feignClient.EventClient;
 import com.grupo01.spring.feignClient.UserClient;
 import com.grupo01.spring.model.BancoRequest;
 import com.grupo01.spring.model.BancoResponse;
 import com.grupo01.spring.model.Compra;
 import com.grupo01.spring.model.CompraRequest;
 import com.grupo01.spring.model.CompraResponse;
+import com.grupo01.spring.model.EventResponse;
 import com.grupo01.spring.model.UserResponse;
 import com.grupo01.spring.repository.CompraRepository;
 
@@ -48,6 +50,9 @@ public class CompraServiceTest {
 	@Mock
 	private UserClient userClient;
 	
+	@Mock
+    private EventClient eventClient;
+	
 	@InjectMocks
 	private CompraServiceImpl compraService;
 
@@ -55,8 +60,9 @@ public class CompraServiceTest {
 	void debeManejarErrorCuandoCompraNoEsValida() {
 		 // Datos de prueba
         CompraRequest compraRequest = new CompraRequest();
+        UUID eventId = UUID.randomUUID();
         compraRequest.setEmail("test@ejemplo.com");
-        compraRequest.setEventId(UUID.randomUUID());
+        compraRequest.setEventId(eventId);
         
         BancoRequest bancoRequest = new BancoRequest();
         bancoRequest.setNumeroTarjeta("1234-5678-1234-5678");
@@ -66,10 +72,16 @@ public class CompraServiceTest {
 
         String token = "mocked-token";
         
-        // Mock del flujo de datos
+        // Mock de los clientes
         when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
-        when(userClient.getUserByEmail("test@ejemplo.com")).thenReturn(new UserResponse("12345", "Test User", "test@ejemplo.com"));
-
+        when(userClient.getUserByEmail("test@ejemplo.com")).thenReturn(new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012"));        
+        
+        // Mock del cliente de eventos
+        EventResponse mockEventResponse = new EventResponse();
+        mockEventResponse.setPrecioMinimo(BigDecimal.valueOf(50));
+        mockEventResponse.setPrecioMaximo(BigDecimal.valueOf(150));
+        when(eventClient.obtenerDetallesEvento(eq(eventId))).thenReturn(mockEventResponse);
+        
         // Simula respuesta inválida del banco
         when(bancoClient.validarCompra(eq(bancoRequest), eq("Bearer " + token)))
         	.thenThrow(new RuntimeException("El banco rechazó la compra"));
@@ -78,13 +90,14 @@ public class CompraServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             compraService.registrarCompra(compraRequest);
         });
-        
+
         // Verificar el mensaje de la excepción
-        assertEquals("Error al validar la compra: El banco rechazó la compra", exception.getMessage());
+        assertEquals("El banco rechazó la compra", exception.getMessage());
 
         // Verificar interacciones
         verify(bancoClient).autenticarUsuario(anyMap());
         verify(userClient).getUserByEmail("test@ejemplo.com");
+        verify(eventClient).obtenerDetallesEvento(compraRequest.getEventId()); // Verifica llamada al cliente de eventos
         verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
         verifyNoInteractions(compraRepository); // No debe guardar en la base de datos si hay error
     }
@@ -108,7 +121,7 @@ public class CompraServiceTest {
 	    bancoResponse.setMensaje("Compra realizada con éxito");
 	    bancoResponse.setSuccess(true);
 	    
-	    UserResponse userResponse = new UserResponse("12345", "Test User", "test@ejemplo.com");
+	    UserResponse userResponse = new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012");
 
 	    // Mock del flujo de datos
 	    when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
