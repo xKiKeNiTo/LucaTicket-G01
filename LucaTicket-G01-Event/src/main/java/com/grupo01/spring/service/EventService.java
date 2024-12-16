@@ -26,7 +26,7 @@ public interface EventService {
 
 	List<EventResponse> findByNombreContainsIgnoreCase(String nombre);
 
-	String getReferenceById(UUID id);
+	EventResponse getReferenceById(UUID id);
 
 	EventResponse updateEvent(UUID id, EventRequest eventoActualizado);
 	

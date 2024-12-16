@@ -34,4 +34,12 @@ public class UserController {
 
 		return ResponseEntity.status(201).body(userResponse);
 	}
+	
+	 @GetMapping("/findByMail")
+	    public ResponseEntity<UserResponse> findByMail(@RequestParam("mail") String mail) {
+	        UserResponse userResponse = userServiceImpl.findByMail(mail);
+	        return ResponseEntity.ok(userResponse);
+	    }
+
+	
 }

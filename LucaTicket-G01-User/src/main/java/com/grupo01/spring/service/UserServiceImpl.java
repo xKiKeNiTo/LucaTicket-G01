@@ -41,4 +41,10 @@ public class UserServiceImpl implements UserService {
 		User savedEvent = userDao.save(event);
 		return mapToResponse(savedEvent);
 	}
+
+	public UserResponse findByMail(String mail) {
+		return userDao.findByMail(mail).map(
+				user -> new UserResponse(user.getMail(), user.getNombre(), user.getApellido(), user.getFechaAlta()))
+				.orElseThrow(() -> new RuntimeException("Usuario no encontrado con mail: " + mail));
+	}
 }
