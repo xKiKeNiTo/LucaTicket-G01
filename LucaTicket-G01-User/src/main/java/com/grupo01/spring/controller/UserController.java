@@ -12,20 +12,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
     @Autowired
     private UserServiceImpl userServiceImpl;
 
-    /**
-     * Endpoint para crear un nuevo usuario
-     *
-     * @param userRequest datos del usuario a crear.
-     * @return ResponseEntity con UserResponse y el estado HTTP.
-     */
-    @PostMapping("/save")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
-       
-        UserResponse createdUser = userServiceImpl.save(userRequest);
+	/**
+	 * Endpoint para crear un nuevo usuario
+	 *
+	 * @param userRequest datos del usuario a crear.
+	 * @return ResponseEntity con UserResponse y el estado HTTP.
+	 */
+	@PostMapping("/save")
+	public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest userRequest) {
 
 		UserRequest userRequestDomain = new UserRequest(userRequest.getMail(), userRequest.getNombre(),
 				userRequest.getApellido(), userRequest.getContrasena());
