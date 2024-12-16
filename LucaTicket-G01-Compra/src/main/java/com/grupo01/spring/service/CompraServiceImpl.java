@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,4 +146,20 @@ public class CompraServiceImpl implements CompraService {
 			return "Error no procesable: " + responseBody;
 		}
 	}
+	
+    @Override
+    public List<CompraResponse> listarComprasPorCorreo(String mail) {
+        
+    	List<Compra> compras = compraRepository.findAllByUserMail(mail);
+    	// Mapear cada compra al formato de CompraResponse
+        return compras.stream()
+                .map(compra -> new CompraResponse(
+                        "Compra encontrada exitosamente",
+                        true,
+                        compra.getIdCompra().toString(),
+                        compra.getPrecio()              
+                ))
+                .toList();
+    }
+	
 }
