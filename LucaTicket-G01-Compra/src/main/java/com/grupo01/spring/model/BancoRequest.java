@@ -104,4 +104,11 @@ public class BancoRequest {
 	public void setCantidad(BigDecimal cantidad) {
 		this.cantidad = cantidad;
 	}
+
+	@Override
+	public String toString() {
+		return "BancoRequest [nombreTitular=" + nombreTitular + ", numeroTarjeta=" + numeroTarjeta + ", mesCaducidad="
+				+ mesCaducidad + ", yearCaducidad=" + yearCaducidad + ", cvv=" + cvv + ", emisor=" + emisor
+				+ ", concepto=" + concepto + ", cantidad=" + cantidad + "]";
+	}
 }

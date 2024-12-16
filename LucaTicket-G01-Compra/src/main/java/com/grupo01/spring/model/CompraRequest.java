@@ -4,7 +4,12 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotNull;
 
 public class CompraRequest {
-    @NotNull
+    @Override
+	public String toString() {
+		return "CompraRequest [email=" + email + ", eventId=" + eventId + ", bancoRequest=" + bancoRequest + "]";
+	}
+
+	@NotNull
     private String email;
 
     @NotNull
