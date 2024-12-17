@@ -116,14 +116,19 @@ public class CompraServiceImpl implements CompraService {
 	            "No se encontraron compras para el correo: " + mail);
 	    }
 
-	    // Crear la lista de compras con concepto y cantidad
+	    // Crear la lista de compras con concepto detallado y cantidad
 	    List<Map<String, Object>> detalleCompras = compras.stream()
 	            .map(compra -> {
 	                Map<String, Object> detalle = new LinkedHashMap<>();
 	                try {
 	                    // Obtener los detalles del evento utilizando EventClient
 	                    EventResponse eventResponse = eventClient.obtenerDetallesEvento(compra.getIdEvent());
-	                    String concepto = "Compra de entradas para el evento: " + eventResponse.getNombreEvento();
+	                    String concepto = String.format(
+	                        "Compra de entradas para el evento: %s en %s, %s", 
+	                        eventResponse.getNombreEvento(), 
+	                        eventResponse.getLocalidad(),
+	                        eventResponse.getNombreRecinto()
+	                    );
 	                    detalle.put("concepto", concepto);
 	                } catch (Exception e) {
 	                    // Si falla, asignar un valor por defecto
@@ -141,6 +146,7 @@ public class CompraServiceImpl implements CompraService {
 
 	    return respuesta;
 	}
+
 
 
 

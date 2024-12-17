@@ -5,49 +5,77 @@ import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EventResponse {
-	private String idEvento;
-	@JsonProperty("nombre")
-	private String nombreEvento;
-	private BigDecimal precioMinimo;
-	private BigDecimal precioMaximo;
+    private String idEvento;
 
-	// Getters
-	public String getIdEvento() {
-		return idEvento;
-	}
+    @JsonProperty("nombre")
+    private String nombreEvento;
 
-	public String getNombreEvento() {
-		return nombreEvento;
-	}
+    private BigDecimal precioMinimo;
+    private BigDecimal precioMaximo;
 
-	public BigDecimal getPrecioMinimo() {
-		return precioMinimo;
-	}
+    // Nuevos campos
+    private String localidad;
+    private String nombreRecinto;
 
-	public BigDecimal getPrecioMaximo() {
-		return precioMaximo;
-	}
+    // Getters
+    public String getIdEvento() {
+        return idEvento;
+    }
 
-	// Setters
-	public void setIdEvento(String idEvento) {
-		this.idEvento = idEvento;
-	}
+    public String getNombreEvento() {
+        return nombreEvento;
+    }
 
-	public void setNombreEvento(String nombreEvento) {
-		this.nombreEvento = nombreEvento;
-	}
+    public BigDecimal getPrecioMinimo() {
+        return precioMinimo;
+    }
 
-	public void setPrecioMinimo(BigDecimal precioMinimo) {
-		this.precioMinimo = precioMinimo;
-	}
+    public BigDecimal getPrecioMaximo() {
+        return precioMaximo;
+    }
 
-	public void setPrecioMaximo(BigDecimal precioMaximo) {
-		this.precioMaximo = precioMaximo;
-	}
+    public String getLocalidad() {
+        return localidad;
+    }
 
-	@Override
-	public String toString() {
-		return "EventResponse{" + "idEvento='" + idEvento + '\'' + ", nombreEvento='" + nombreEvento + '\''
-				+ ", precioMinimo=" + precioMinimo + ", precioMaximo=" + precioMaximo + '}';
-	}
+    public String getNombreRecinto() {
+        return nombreRecinto;
+    }
+
+    // Setters
+    public void setIdEvento(String idEvento) {
+        this.idEvento = idEvento;
+    }
+
+    public void setNombreEvento(String nombreEvento) {
+        this.nombreEvento = nombreEvento;
+    }
+
+    public void setPrecioMinimo(BigDecimal precioMinimo) {
+        this.precioMinimo = precioMinimo;
+    }
+
+    public void setPrecioMaximo(BigDecimal precioMaximo) {
+        this.precioMaximo = precioMaximo;
+    }
+
+    public void setLocalidad(String localidad) {
+        this.localidad = localidad;
+    }
+
+    public void setNombreRecinto(String nombreRecinto) {
+        this.nombreRecinto = nombreRecinto;
+    }
+
+    @Override
+    public String toString() {
+        return "EventResponse{" +
+                "idEvento='" + idEvento + '\'' +
+                ", nombreEvento='" + nombreEvento + '\'' +
+                ", precioMinimo=" + precioMinimo +
+                ", precioMaximo=" + precioMaximo +
+                ", localidad='" + localidad + '\'' +
+                ", nombreRecinto='" + nombreRecinto + '\'' +
+                '}';
+    }
 }
