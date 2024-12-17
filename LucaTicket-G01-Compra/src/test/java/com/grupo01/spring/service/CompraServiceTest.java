@@ -229,5 +229,7 @@ public class CompraServiceTest {
 		verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
 		verify(compraRepository).save(ArgumentMatchers.any(Compra.class));
 	}
+	
+
 
 }
