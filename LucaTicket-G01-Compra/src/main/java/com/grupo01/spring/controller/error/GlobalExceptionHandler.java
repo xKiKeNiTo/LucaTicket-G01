@@ -206,49 +206,21 @@ public class GlobalExceptionHandler {
 
 		return new ResponseEntity<>(Map.of("errors", List.of(error)), HttpStatus.BAD_REQUEST);
 	}
-	
+
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
-	    logger.error("Error capturado: {}", ex.getReason());
+		logger.error("Error capturado: {}", ex.getReason());
 
-	    // Construir la respuesta de error en el formato deseado
-	    Map<String, Object> errorResponse = new HashMap<>();
-	    errorResponse.put("timestamp", LocalDateTime.now());
-	    errorResponse.put("status", ex.getStatusCode().value());
-	    errorResponse.put("error", ex.getStatusCode());
-	    errorResponse.put("message", extractMessageFromBody(ex)); // Extraer el mensaje personalizado
-	    errorResponse.put("infoadicional", "Error en el procesamiento de la solicitud.");
+		// Construir la respuesta de error en el formato deseado
+		Map<String, Object> errorResponse = new HashMap<>();
+		errorResponse.put("timestamp", LocalDateTime.now());
+		errorResponse.put("status", ex.getStatusCode().value());
+		errorResponse.put("error", ex.getStatusCode());
+		errorResponse.put("message", List.of(ex.getReason()));
+		errorResponse.put("infoadicional", "Error en el procesamiento de la solicitud.");
 
-	    return new ResponseEntity<>(Map.of("errors", List.of(errorResponse)), ex.getStatusCode());
+		// No incluir la traza
+		return new ResponseEntity<>(Map.of("errors", List.of(errorResponse)), ex.getStatusCode());
 	}
 
-	private Object extractMessageFromBody(ResponseStatusException ex) {
-	    try {
-	        // Convertir el cuerpo de la excepción a un String (JSON crudo)
-	        String responseBody = ex.getReason(); // Aquí se asume que la razón contiene el JSON
-	        if (responseBody != null && responseBody.contains("message")) {
-	            // Analizar el JSON para obtener el campo "message"
-	            ObjectMapper mapper = new ObjectMapper();
-	            JsonNode rootNode = mapper.readTree(responseBody);
-	            JsonNode messageNode = rootNode.path("message");
-
-	            if (messageNode.isArray()) {
-	                // Concatenar todos los mensajes del array
-	                return StreamSupport.stream(messageNode.spliterator(), false)
-	                        .map(JsonNode::asText)
-	                        .collect(Collectors.toList());
-	            } else if (messageNode.isTextual()) {
-	                return List.of(messageNode.asText());
-	            }
-	        }
-	    } catch (Exception e) {
-	        logger.error("Error al procesar el cuerpo de la excepción: {}", e.getMessage());
-	    }
-
-	    // Si no se pudo extraer el mensaje, devolver la razón original como lista
-	    return List.of(ex.getReason());
-	}
-
-
-	
 }

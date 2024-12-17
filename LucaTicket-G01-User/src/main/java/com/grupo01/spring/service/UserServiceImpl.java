@@ -1,6 +1,8 @@
 package com.grupo01.spring.service;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.grupo01.spring.controller.error.DuplicateUserException;
 import com.grupo01.spring.model.User;
@@ -43,8 +45,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	public UserResponse findByMail(String mail) {
-		return userDao.findByMail(mail).map(
-				user -> new UserResponse(user.getMail(), user.getNombre(), user.getApellido(), user.getFechaAlta()))
-				.orElseThrow(() -> new RuntimeException("Usuario no encontrado con mail: " + mail));
+	    return userDao.findByMail(mail)
+	            .map(user -> new UserResponse(user.getMail(), user.getNombre(), user.getApellido(), user.getFechaAlta()))
+	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con mail: " + mail));
 	}
+
 }
