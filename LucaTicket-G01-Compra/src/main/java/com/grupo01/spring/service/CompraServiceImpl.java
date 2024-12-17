@@ -116,6 +116,30 @@ public class CompraServiceImpl implements CompraService {
 				"Transacción completada correctamente.");
 	}
 
+	@Override
+	public Map<String, Object> listarComprasPorCorreo(String mail) {
+	    // Obtener todas las compras del repositorio
+	    List<Compra> compras = compraRepository.findAllByUserMail(mail);
+
+	    // Crear la lista de compras con concepto y cantidad
+	    List<Map<String, Object>> detalleCompras = compras.stream()
+	            .map(compra -> {
+	                Map<String, Object> detalle = new LinkedHashMap<>();
+	                detalle.put("concepto", "Compra de entradas para el evento");
+	                detalle.put("cantidad", compra.getPrecio());
+	                return detalle;
+	            })
+	            .toList();
+
+	    Map<String, Object> respuesta = new LinkedHashMap<>();
+	    respuesta.put("mailComprador", mail);
+	    respuesta.put("totalCompras", compras.size());
+	    respuesta.put("compras", detalleCompras);
+
+	    return respuesta;
+	}
+
+
 	private BigDecimal generateRandomPrice(BigDecimal min, BigDecimal max) {
 		Random random = new Random();
 		BigDecimal randomValue = min.add(BigDecimal.valueOf(random.nextDouble()).multiply(max.subtract(min)));
@@ -139,5 +163,4 @@ public class CompraServiceImpl implements CompraService {
 			throw ex;
 		}
 	}
-
 }

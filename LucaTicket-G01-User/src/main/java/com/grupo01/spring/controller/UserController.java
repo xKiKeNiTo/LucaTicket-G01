@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-
-	@Autowired
-	private UserServiceImpl userServiceImpl;
+    @Autowired
+    private UserServiceImpl userServiceImpl;
 
 	/**
 	 * Endpoint para crear un nuevo usuario
