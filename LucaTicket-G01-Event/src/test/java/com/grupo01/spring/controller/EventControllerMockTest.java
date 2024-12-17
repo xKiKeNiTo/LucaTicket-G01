@@ -192,14 +192,21 @@ public class EventControllerMockTest {
 		evento.setPrecioMaximo(BigDecimal.valueOf(0));
 		evento.setLocalidad(Localidad.Madrid);
 
-		String detalles = "El evento 'Test' se realiza en Madrid el dia 2024-01-01 a las 00:00";
+		// String detalles = "El evento 'Test' se realiza en Madrid el dia 2024-01-01 a las 00:00";
 
 		// Mock del servicio
-		when(eventService.getReferenceById(id)).thenReturn(detalles);
+		when(eventService.getReferenceById(id)).thenReturn(evento);
 
 		// Llamar al endpoint
-		mockMvc.perform(get("/eventos/detalles").param("id", id.toString())).andExpect(status().isOk())
-				.andExpect(content().string(detalles));
+		mockMvc.perform(get("/eventos/detalles").param("id", id.toString()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.id").value(id.toString()))
+	        .andExpect(jsonPath("$.nombre").value("Test"))
+	        .andExpect(jsonPath("$.fechaEvento").value("2024-01-01"))
+	        .andExpect(jsonPath("$.horaEvento").value("00:00:00"))
+	        .andExpect(jsonPath("$.precioMinimo").value(0))
+	        .andExpect(jsonPath("$.precioMaximo").value(0))
+	        .andExpect(jsonPath("$.localidad").value("Madrid"));
 
 		// Verificar interacciones
 		verify(eventService, times(1)).getReferenceById(id);
