@@ -153,11 +153,6 @@ public class CompraServiceImpl implements CompraService {
 		return randomValue.setScale(2, RoundingMode.HALF_UP);
 	}
 
-	@Override
-	public BigDecimal calcularPrecioPromedioPorEvento(UUID idEvento) {
-		return compraRepository.calcularPrecioPromedioPorEvento(idEvento);
-	}
-
 	private String validarUser() {
 		Map<String, String> credentials = new HashMap<>();
 		credentials.put("user", "Grupo01");

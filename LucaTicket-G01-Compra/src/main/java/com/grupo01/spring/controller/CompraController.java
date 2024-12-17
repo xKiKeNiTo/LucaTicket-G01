@@ -31,7 +31,4 @@ public class CompraController {
 	    Map<String, Object> respuesta = compraService.listarComprasPorCorreo(mail);
 	    return ResponseEntity.ok(respuesta);
 	}
-
-
-	
 }
