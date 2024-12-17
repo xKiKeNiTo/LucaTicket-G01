@@ -15,4 +15,10 @@ public interface CompraRepository extends JpaRepository<Compra, UUID> {
     boolean existsByUserMailAndIdEvent(String userMail, UUID idEvent);
 	
 	List<Compra> findAllByUserMail(String mail);
+
+    @Query("SELECT DISTINCT c.idEvent FROM Compra c")
+    List<UUID> findDistinctIdEventos(); // Devuelve IDs únicos de eventos con compras
+
+    @Query("SELECT AVG(c.precio) FROM Compra c WHERE c.idEvent = :evento")
+    BigDecimal calcularPrecioPromedioPorEvento(@Param("evento") UUID idEvent);
 }

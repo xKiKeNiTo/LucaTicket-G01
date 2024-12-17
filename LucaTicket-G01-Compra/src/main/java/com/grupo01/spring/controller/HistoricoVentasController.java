@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/ventas")
+@RequestMapping("/estadisticas")
 public class HistoricoVentasController{
 
 	@Autowired

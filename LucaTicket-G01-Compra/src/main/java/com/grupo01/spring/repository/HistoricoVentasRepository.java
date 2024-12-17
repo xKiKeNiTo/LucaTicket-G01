@@ -7,11 +7,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface HistoricoVentasRepository extends JpaRepository<HistoricoVentas, UUID> {
 
-    @Query("SELECT AVG(h.precioMedio) FROM HistoricoVentas h WHERE h.idEvent = :evento")
-    BigDecimal calcularPrecioPromedioPorEvento(@Param("evento") UUID idEvent);
+    Optional<HistoricoVentas> findByIdEvent(UUID idEvent); // Busca por ID del evento
+
+    @Query("SELECT AVG(h.precioMedio) FROM HistoricoVentas h WHERE h.idEvent = :idEvent")
+    BigDecimal calcularPrecioPromedioPorEvento(@Param("idEvent") UUID idEvent);
 }
