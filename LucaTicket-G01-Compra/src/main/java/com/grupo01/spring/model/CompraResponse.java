@@ -3,7 +3,13 @@ package com.grupo01.spring.model;
 import java.math.BigDecimal;
 
 public class CompraResponse {
-    private String message;
+    @Override
+	public String toString() {
+		return "CompraResponse [message=" + message + ", success=" + success + ", transactionId=" + transactionId
+				+ ", amount=" + amount + "]";
+	}
+
+	private String message;
     private boolean success;
     private String transactionId;
     private BigDecimal amount;
