@@ -1,10 +1,12 @@
 package com.grupo01.spring.controller;
 
+import com.grupo01.spring.model.BancoRequest;
+import com.grupo01.spring.model.CompraRequest;
 import com.grupo01.spring.model.CompraResponse;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -21,7 +23,7 @@ public class CompraControllerRestAssuredTest {
 	@LocalServerPort
 	private int port;
 
-	@BeforeEach
+	@BeforeAll
 	public void setUp() {
 		RestAssured.port = port;
 		RestAssured.basePath = "/users";
@@ -62,5 +64,40 @@ public class CompraControllerRestAssuredTest {
 		// Assert: Imprimir la respuesta para inspección (opcional, útil para debugging)
 		System.out.println(response.asPrettyString());
 	}
+	
+	@Test
+    void debeRegistrarCompraYDevolver201() {
+		// Arrange: Crear los datos del BancoRequest
+        BancoRequest bancoRequest = new BancoRequest();
+        bancoRequest.setNombreTitular("Juan Perez");
+        bancoRequest.setNumeroTarjeta("1234567812345678");
+        bancoRequest.setMesCaducidad("12");
+        bancoRequest.setYearCaducidad("2025");
+        bancoRequest.setCvv("123");
+        bancoRequest.setEmisor("Visa");
+        bancoRequest.setConcepto("Compra de entradas");
+        bancoRequest.setCantidad(new BigDecimal("150.00"));
+
+        // Crear el CompraRequest
+        CompraRequest compraRequest = new CompraRequest();
+        compraRequest.setEmail("usuario@example.com");
+        compraRequest.setEventId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+        compraRequest.setBancoRequest(bancoRequest);
+
+        // Act & Assert: Enviar la solicitud POST al endpoint /compras
+        given()
+                .port(port)
+                .contentType(ContentType.JSON)
+                .body(compraRequest)
+        .when()
+                .post("/compras")
+        .then()
+                .statusCode(201) // Verificar que responde con HTTP 201 Created
+                .contentType(ContentType.JSON) // Verificar el tipo de contenido
+                .body("message", equalTo("Compra realizada con éxito")) // Mensaje de éxito
+                .body("success", is(true)) // Campo "success" verdadero
+                .body("transactionId", notNullValue()) // transactionId no debe ser nulo
+                .body("amount", equalTo(bancoRequest.getCantidad().floatValue())); // Verificar el monto
+    }
 
 }
