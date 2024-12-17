@@ -28,12 +28,8 @@ public class BancoRequest {
 	@Pattern(regexp = "^[0-9]{3}$", message = "El CVV debe tener exactamente 3 dígitos.")
 	private String cvv;
 
-	@NotNull(message = "El emisor no puede ser nulo.")
-	@Size(min = 3, max = 20, message = "El emisor debe tener entre 3 y 20 caracteres.")
 	private String emisor;
 
-	@NotNull(message = "El concepto no puede ser nulo.")
-	@Size(min = 5, max = 100, message = "El concepto debe tener entre 5 y 100 caracteres.")
 	private String concepto;
 
 	@NotNull(message = "La cantidad no puede ser nula.")

@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, UUID> {
+    boolean existsByUserMailAndIdEvent(String userMail, UUID idEvent);
 }

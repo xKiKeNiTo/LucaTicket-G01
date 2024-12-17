@@ -3,25 +3,19 @@ package com.grupo01.spring.service;
 import com.grupo01.spring.feignClient.BancoClient;
 import com.grupo01.spring.feignClient.EventClient;
 import com.grupo01.spring.feignClient.UserClient;
-import com.grupo01.spring.model.BancoRequest;
-import com.grupo01.spring.model.BancoResponse;
-import com.grupo01.spring.model.Compra;
-import com.grupo01.spring.model.CompraRequest;
-import com.grupo01.spring.model.CompraResponse;
-import com.grupo01.spring.model.EventResponse;
-import com.grupo01.spring.model.UserResponse;
+import com.grupo01.spring.model.*;
 import com.grupo01.spring.repository.CompraRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class CompraServiceImpl implements CompraService {
@@ -43,39 +37,45 @@ public class CompraServiceImpl implements CompraService {
 
 	@Override
 	public CompraResponse registrarCompra(CompraRequest compraRequest) {
-		// Validar usuario
 		String token = validarUser();
 
-		// Recibir datos del usuario
-		logger.info("Consultando datos del usuario: {}", compraRequest.getEmail());
-		UserResponse userResponse = userClient.getUserByEmail(compraRequest.getEmail());
+		// Validar usuario
+		logger.info("Consultando usuario: {}", compraRequest.getEmail());
+		UserResponse userResponse;
+		try {
+			userResponse = userClient.getUserByEmail(compraRequest.getEmail());
+		} catch (Exception e) {
+			throw createError(HttpStatus.NOT_FOUND, "Email no encontrado", "El usuario no existe.", compraRequest);
+		}
 
-		logger.info("Usuario obtenido: {}", userResponse);
+		// Validar evento
+		EventResponse eventResponse;
+		try {
+			eventResponse = eventClient.obtenerDetallesEvento(compraRequest.getEventId());
+		} catch (Exception e) {
+			throw createError(HttpStatus.NOT_FOUND, "Evento no encontrado", "El evento no existe.", compraRequest);
+		}
 
-		// Recibir datos del evento
-		logger.info("Consultando datos del evento: {}", compraRequest.getEventId());
-		EventResponse eventResponse = eventClient.obtenerDetallesEvento(compraRequest.getEventId());
+		// Verificar si el usuario ya compró el evento
+		if (compraRepository.existsByUserMailAndIdEvent(userResponse.getMail(), compraRequest.getEventId())) {
+			throw createError(HttpStatus.BAD_REQUEST, "Compra duplicada", "El usuario ya ha comprado este evento.",
+					compraRequest);
+		}
 
-		logger.info("Evento obtenido: {}", eventResponse);
-
-		// Generar número random entre los valores minimo y máximo
+		// Precio aleatorio del evento
 		BigDecimal ticketPrice = generateRandomPrice(eventResponse.getPrecioMinimo(), eventResponse.getPrecioMaximo());
-		logger.info("Precio generado aleatoriamente para la entrada: {}", ticketPrice);
 
-		// Validar compra
-		compraRequest.getBancoRequest().setCantidad(ticketPrice); // Set ticket price
+		// Validar compra con el banco
+		compraRequest.getBancoRequest().setCantidad(ticketPrice);
 		BancoResponse bancoResponse = validarCompra(compraRequest.getBancoRequest(), token);
 
-		// Guardar en la BBDD
+		// Guardar en base de datos
 		Compra compra = new Compra();
 		compra.setIdEvent(compraRequest.getEventId());
 		compra.setUserMail(userResponse.getMail());
 		compra.setPrecio(ticketPrice);
 		compra.setFechaCompra(LocalDateTime.now());
 		compraRepository.save(compra);
-
-		// Devolver respuesta
-		logger.info("Compra validada y procesada exitosamente. Transaction ID: {}", bancoResponse.getCodigo());
 
 		return new CompraResponse("Compra realizada con éxito", true, bancoResponse.getCodigo(), ticketPrice);
 	}
@@ -90,24 +90,22 @@ public class CompraServiceImpl implements CompraService {
 		Map<String, String> credentials = new HashMap<>();
 		credentials.put("user", "Grupo01");
 		credentials.put("password", "AntoniosRules");
-
-		logger.info("Enviando solicitud de autenticación al banco con credenciales: {}", credentials);
-		Map<String, String> authResponse = bancoClient.autenticarUsuario(credentials);
-		logger.info("Respuesta recibida del banco: {}", authResponse);
-
-		String token = authResponse.get("token");
-		logger.info("Token recibido correctamente: {}", token);
-
-		return token;
+		return bancoClient.autenticarUsuario(credentials).get("token");
 	}
 
 	private BancoResponse validarCompra(BancoRequest bancoRequest, String token) {
-		logger.info("Enviando solicitud de validación de compra con token: {}", token);
-		logger.info("Datos enviados en la solicitud: {}", bancoRequest);
+		return bancoClient.validarCompra(bancoRequest, "Bearer " + token);
+	}
 
-		BancoResponse bancoResponse = bancoClient.validarCompra(bancoRequest, "Bearer " + token);
-		logger.info("Respuesta de validación del banco: {}", bancoResponse);
-
-		return bancoResponse;
+	private ResponseStatusException createError(HttpStatus status, String error, String message,
+			CompraRequest request) {
+		Map<String, Object> errorBody = new HashMap<>();
+		errorBody.put("timestampp", LocalDateTime.now());
+		errorBody.put("status", status.value());
+		errorBody.put("error", error);
+		errorBody.put("message", List.of(message));
+		errorBody.put("info", request.getBancoRequest());
+		errorBody.put("infoadicional", "Error en el procesamiento de la solicitud.");
+		return new ResponseStatusException(status, message);
 	}
 }
