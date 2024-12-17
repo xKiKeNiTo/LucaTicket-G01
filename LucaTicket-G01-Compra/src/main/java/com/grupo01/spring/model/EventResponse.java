@@ -2,8 +2,11 @@ package com.grupo01.spring.model;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class EventResponse {
 	private String idEvento;
+	@JsonProperty("nombre")
 	private String nombreEvento;
 	private BigDecimal precioMinimo;
 	private BigDecimal precioMaximo;
