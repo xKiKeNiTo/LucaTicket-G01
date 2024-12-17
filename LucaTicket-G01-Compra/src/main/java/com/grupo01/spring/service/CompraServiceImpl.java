@@ -147,14 +147,15 @@ public class CompraServiceImpl implements CompraService {
 	    return respuesta;
 	}
 
-
-
-
-
 	private BigDecimal generateRandomPrice(BigDecimal min, BigDecimal max) {
 		Random random = new Random();
 		BigDecimal randomValue = min.add(BigDecimal.valueOf(random.nextDouble()).multiply(max.subtract(min)));
 		return randomValue.setScale(2, RoundingMode.HALF_UP);
+	}
+
+	@Override
+	public BigDecimal calcularPrecioPromedioPorEvento(UUID idEvento) {
+		return compraRepository.calcularPrecioPromedioPorEvento(idEvento);
 	}
 
 	private String validarUser() {
