@@ -37,48 +37,77 @@ public class CompraServiceImpl implements CompraService {
 
 	@Override
 	public CompraResponse registrarCompra(CompraRequest compraRequest) {
-		String token = validarUser();
+	    String token = validarUser();
 
-		// Validar usuario
-		logger.info("Consultando usuario: {}", compraRequest.getEmail());
-		UserResponse userResponse;
-		try {
-			userResponse = userClient.getUserByEmail(compraRequest.getEmail());
-		} catch (Exception e) {
-			throw createError(HttpStatus.NOT_FOUND, "Email no encontrado", "El usuario no existe.", compraRequest);
-		}
+	    // Validar usuario
+	    logger.info("Consultando datos del usuario con email: {}", compraRequest.getEmail());
+	    UserResponse userResponse = userClient.getUserByEmail(compraRequest.getEmail());
+	    logger.info("Datos del usuario obtenidos: {}", userResponse);
 
-		// Validar evento
-		EventResponse eventResponse;
-		try {
-			eventResponse = eventClient.obtenerDetallesEvento(compraRequest.getEventId());
-		} catch (Exception e) {
-			throw createError(HttpStatus.NOT_FOUND, "Evento no encontrado", "El evento no existe.", compraRequest);
-		}
+	    // Validar evento
+	    logger.info("Consultando datos del evento con ID: {}", compraRequest.getEventId());
+	    EventResponse eventResponse = eventClient.obtenerDetallesEvento(compraRequest.getEventId());
+	    logger.info("Detalles del evento obtenidos: {}", eventResponse);
 
-		// Verificar si el usuario ya compró el evento
-		if (compraRepository.existsByUserMailAndIdEvent(userResponse.getMail(), compraRequest.getEventId())) {
-			throw createError(HttpStatus.BAD_REQUEST, "Compra duplicada", "El usuario ya ha comprado este evento.",
-					compraRequest);
-		}
+	    // Verificar si el evento existe
+	    if (eventResponse == null) {
+	        logger.error("El evento no existe. ID: {}", compraRequest.getEventId());
+	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El evento no existe.");
+	    }
 
-		// Precio aleatorio del evento
-		BigDecimal ticketPrice = generateRandomPrice(eventResponse.getPrecioMinimo(), eventResponse.getPrecioMaximo());
+	    // Verificar si ya compró el evento
+	    if (compraRepository.existsByUserMailAndIdEvent(userResponse.getMail(), compraRequest.getEventId())) {
+	        logger.warn("El usuario ya compró este evento. Email: {}, Evento ID: {}", userResponse.getMail(),
+	                compraRequest.getEventId());
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario ya ha comprado este evento.");
+	    }
 
-		// Validar compra con el banco
-		compraRequest.getBancoRequest().setCantidad(ticketPrice);
-		BancoResponse bancoResponse = validarCompra(compraRequest.getBancoRequest(), token);
+	    // Generar precio aleatorio
+	    BigDecimal ticketPrice = generateRandomPrice(eventResponse.getPrecioMinimo(), eventResponse.getPrecioMaximo());
+	    logger.info("Precio generado aleatoriamente para el evento: {}", ticketPrice);
 
-		// Guardar en base de datos
-		Compra compra = new Compra();
-		compra.setIdEvent(compraRequest.getEventId());
-		compra.setUserMail(userResponse.getMail());
-		compra.setPrecio(ticketPrice);
-		compra.setFechaCompra(LocalDateTime.now());
-		compraRepository.save(compra);
+	    // Configurar valores en BancoRequest
+	    BancoRequest bancoRequest = compraRequest.getBancoRequest();
+	    bancoRequest.setCantidad(ticketPrice);
 
-		return new CompraResponse("Compra realizada con éxito", true, bancoResponse.getCodigo(), ticketPrice);
+	    // Valores predeterminados para emisor y concepto
+	    String emisor = "LucaTic G01";
+	    String concepto = "Compra de entradas para el evento";
+	    logger.info("Concepto generado para la compra: {}", concepto);
+
+	    // Validar compra con el banco
+	    BancoResponse bancoResponse = validarCompra(bancoRequest, token);
+	    logger.info("Validación del banco exitosa: {}", bancoResponse);
+
+	    // Crear el objeto "info" para la respuesta
+	    CompraResponse.Info info = new CompraResponse.Info(
+	            userResponse.getNombre(),
+	            bancoRequest.getNumeroTarjeta(),
+	            bancoRequest.getMesCaducidad(),
+	            bancoRequest.getYearCaducidad(),
+	            bancoRequest.getCvv(),
+	            emisor,
+	            concepto,
+	            ticketPrice
+	    );
+
+	    Compra compra = new Compra();
+	    compra.setIdEvent(compraRequest.getEventId());
+	    compra.setUserMail(userResponse.getMail());
+	    compra.setPrecio(ticketPrice);
+	    compra.setFechaCompra(LocalDateTime.now());
+	    compraRepository.save(compra);
+	    
+	    logger.info("Creación de la respuesta de compra exitosa.");
+	    return new CompraResponse(
+	            "200",
+	            null,
+	            new String[]{"Compra realizada con éxito"},
+	            info,
+	            "Transacción completada correctamente."
+	    );
 	}
+
 
 	private BigDecimal generateRandomPrice(BigDecimal min, BigDecimal max) {
 		Random random = new Random();
@@ -94,18 +123,16 @@ public class CompraServiceImpl implements CompraService {
 	}
 
 	private BancoResponse validarCompra(BancoRequest bancoRequest, String token) {
-		return bancoClient.validarCompra(bancoRequest, "Bearer " + token);
+	    try {
+	        logger.info("Validando compra con el banco...");
+	        BancoResponse bancoResponse = bancoClient.validarCompra(bancoRequest, "Bearer " + token);
+	        logger.info("Respuesta del banco recibida: {}", bancoResponse);
+	        return bancoResponse;
+	    } catch (ResponseStatusException ex) {
+	        throw ex;
+	    }
 	}
 
-	private ResponseStatusException createError(HttpStatus status, String error, String message,
-			CompraRequest request) {
-		Map<String, Object> errorBody = new HashMap<>();
-		errorBody.put("timestampp", LocalDateTime.now());
-		errorBody.put("status", status.value());
-		errorBody.put("error", error);
-		errorBody.put("message", List.of(message));
-		errorBody.put("info", request.getBancoRequest());
-		errorBody.put("infoadicional", "Error en el procesamiento de la solicitud.");
-		return new ResponseStatusException(status, message);
-	}
+
+
 }

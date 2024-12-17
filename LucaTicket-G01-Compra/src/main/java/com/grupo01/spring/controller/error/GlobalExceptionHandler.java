@@ -8,6 +8,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import feign.FeignException;
@@ -25,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Clase para manejar excepciones globales en la aplicación. Captura y gestiona
@@ -213,11 +216,39 @@ public class GlobalExceptionHandler {
 	    errorResponse.put("timestamp", LocalDateTime.now());
 	    errorResponse.put("status", ex.getStatusCode().value());
 	    errorResponse.put("error", ex.getStatusCode());
-	    errorResponse.put("message", List.of(ex.getReason()));
+	    errorResponse.put("message", extractMessageFromBody(ex)); // Extraer el mensaje personalizado
 	    errorResponse.put("infoadicional", "Error en el procesamiento de la solicitud.");
 
 	    return new ResponseEntity<>(Map.of("errors", List.of(errorResponse)), ex.getStatusCode());
 	}
+
+	private Object extractMessageFromBody(ResponseStatusException ex) {
+	    try {
+	        // Convertir el cuerpo de la excepción a un String (JSON crudo)
+	        String responseBody = ex.getReason(); // Aquí se asume que la razón contiene el JSON
+	        if (responseBody != null && responseBody.contains("message")) {
+	            // Analizar el JSON para obtener el campo "message"
+	            ObjectMapper mapper = new ObjectMapper();
+	            JsonNode rootNode = mapper.readTree(responseBody);
+	            JsonNode messageNode = rootNode.path("message");
+
+	            if (messageNode.isArray()) {
+	                // Concatenar todos los mensajes del array
+	                return StreamSupport.stream(messageNode.spliterator(), false)
+	                        .map(JsonNode::asText)
+	                        .collect(Collectors.toList());
+	            } else if (messageNode.isTextual()) {
+	                return List.of(messageNode.asText());
+	            }
+	        }
+	    } catch (Exception e) {
+	        logger.error("Error al procesar el cuerpo de la excepción: {}", e.getMessage());
+	    }
+
+	    // Si no se pudo extraer el mensaje, devolver la razón original como lista
+	    return List.of(ex.getReason());
+	}
+
 
 	
 }
