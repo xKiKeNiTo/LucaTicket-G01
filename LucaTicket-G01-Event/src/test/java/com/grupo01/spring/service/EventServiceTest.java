@@ -1,7 +1,11 @@
 package com.grupo01.spring.service;
 
+import com.grupo01.spring.controller.error.CustomException;
 import com.grupo01.spring.model.*;
 import com.grupo01.spring.repository.EventDao;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -287,5 +291,24 @@ class EventServiceTest {
         // Verifica que el repositorio fue llamado exactamente una vez
         verify(eventDao, times(1)).delete(event);    
 	}
+	
+	@Test
+	void debeLanzarIllegalArgumentExceptionCuandoEventoNoExiste() {
+	    // Configurar el mock para devolver vacío cuando se busca un evento inexistente
+	    UUID eventoId = UUID.randomUUID();
+	    when(eventDao.findById(eventoId)).thenReturn(Optional.empty());
+
+	    // Verifica que se lanza una IllegalArgumentException cuando el evento no existe
+	    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+	        eventServiceImpl.getReferenceById(eventoId);
+	    });
+
+	    // Verifica el mensaje de la excepción
+	    assertEquals("Evento no encontrado", exception.getMessage());
+
+	    // Verifica que el DAO fue llamado correctamente
+	    verify(eventDao).findById(eventoId);
+	}
+
 		
 }
