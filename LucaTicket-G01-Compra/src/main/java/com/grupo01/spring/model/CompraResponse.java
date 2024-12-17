@@ -3,6 +3,8 @@ package com.grupo01.spring.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 public class CompraResponse {
 	private String timestampp;
 	private String status;
@@ -21,6 +23,7 @@ public class CompraResponse {
 	}
 
 	// Clase estática para "info"
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	public static class Info {
 		private String nombreTitular;
 		private String numeroTarjeta;
@@ -31,7 +34,6 @@ public class CompraResponse {
 		private String concepto;
 		private BigDecimal cantidad;
 
-		// Constructor
 		public Info(String nombreTitular, String numeroTarjeta, String mesCaducidad, String yearCaducidad, String cvv,
 				String emisor, String concepto, BigDecimal cantidad) {
 			this.nombreTitular = nombreTitular;
