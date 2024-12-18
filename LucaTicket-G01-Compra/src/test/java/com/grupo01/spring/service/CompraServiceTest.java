@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
+import com.grupo01.spring.model.*;
+import com.grupo01.spring.repository.HistoricoVentasRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -23,13 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.grupo01.spring.feignClient.BancoClient;
 import com.grupo01.spring.feignClient.EventClient;
 import com.grupo01.spring.feignClient.UserClient;
-import com.grupo01.spring.model.BancoRequest;
-import com.grupo01.spring.model.BancoResponse;
-import com.grupo01.spring.model.Compra;
-import com.grupo01.spring.model.CompraRequest;
-import com.grupo01.spring.model.CompraResponse;
-import com.grupo01.spring.model.EventResponse;
-import com.grupo01.spring.model.UserResponse;
 import com.grupo01.spring.repository.CompraRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -157,4 +152,19 @@ public class CompraServiceTest {
         verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
         verify(compraRepository).save(ArgumentMatchers.any(Compra.class));
     }
+
+    @Test
+    void debeCalcularPrecioPromedioCorrectamente() {
+        // Datos de prueba
+        UUID eventId = UUID.randomUUID();
+        BigDecimal expectedPrecioPromedio = BigDecimal.valueOf(100); // Precio promedio esperado
+
+        when(compraRepository.calcularPrecioPromedioPorEvento(eventId)).thenReturn(expectedPrecioPromedio);
+
+        BigDecimal precioPromedio = compraService.calcularPrecioPromedioPorEvento(eventId);
+        assertEquals(expectedPrecioPromedio, precioPromedio);
+
+        verify(compraRepository).calcularPrecioPromedioPorEvento(eq(eventId));
+    }
+
 }
