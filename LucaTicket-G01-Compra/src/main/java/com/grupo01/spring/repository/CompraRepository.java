@@ -21,4 +21,13 @@ public interface CompraRepository extends JpaRepository<Compra, UUID> {
 
     @Query("SELECT AVG(c.precio) FROM Compra c WHERE c.idEvent = :evento")
     BigDecimal calcularPrecioPromedioPorEvento(@Param("evento") UUID idEvent);
+
+    @Query("SELECT MAX(c.precio) FROM Compra c WHERE c.idEvent = :evento")
+    BigDecimal findMaxPrecioPorEvento(@Param("evento") UUID idEvent);
+
+    @Query("SELECT MIN(c.precio) FROM Compra c WHERE c.idEvent = :evento")
+    BigDecimal findMinPrecioPorEvento(@Param("evento") UUID idEvent);
+
+    @Query("SELECT COUNT(c.precio) FROM Compra c WHERE c.idEvent = :evento")
+    BigDecimal contarComprasPorEvento(@Param("evento") UUID idEvent);
 }
