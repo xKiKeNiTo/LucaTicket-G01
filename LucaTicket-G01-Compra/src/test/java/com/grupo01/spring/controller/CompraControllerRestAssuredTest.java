@@ -102,9 +102,13 @@ public class CompraControllerRestAssuredTest {
 		// Ejecutar la respuesta
 		Response response = given().contentType("application/json").body(nuevaCompra).when().post("/compras/save");
 
-		// Verificar la respuesta
+		 // Log del request y response
+	    System.out.println("Request: " + nuevaCompra);
+	    response.then().log().all();
+
+		// Verifico la respuesta
 		response.then().statusCode(400) // Expected error status
-				.body("errors[0].message", startsWith("Error en la solicitud al servicio externo"));
+				.body("errors[0].message", startsWith("El número de tarjeta debe tener exactamente 16 dígitos."));
 	}
 
 	@Test
@@ -130,7 +134,11 @@ public class CompraControllerRestAssuredTest {
 		// Ejecutar la respuesta
 		Response response = given().contentType("application/json").body(nuevaCompra).when().post("/compras/save");
 
-		// Verificar la respuesta
+		 // Log del request y response
+	    System.out.println("Request: " + nuevaCompra);
+	    response.then().log().all();
+
+		// Verifico la respuesta
 		response.then().statusCode(400); // Expected error status
 	}
 }

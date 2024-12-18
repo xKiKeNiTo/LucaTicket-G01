@@ -150,28 +150,31 @@ class EventServiceTest {
 		// Datos de prueba
 		UUID id = UUID.randomUUID();
 		Event evento = new Event();
-		evento.setId(UUID.randomUUID());
+		evento.setId(id);
 		evento.setNombre("Test");
 		evento.setFechaEvento(LocalDate.of(2024, 1, 1));
 		evento.setHoraEvento(LocalTime.of(0, 0));
-		evento.setPrecioMinimo(BigDecimal.valueOf(0));
-		evento.setPrecioMaximo(BigDecimal.valueOf(0));
+		evento.setPrecioMinimo(BigDecimal.valueOf(1));
+		evento.setPrecioMaximo(BigDecimal.valueOf(2));
 		evento.setLocalidad(Localidad.Madrid);
 
 		// Mockear el comportamiento del DAO
-		when(eventDao.getReferenceById(id)).thenReturn(evento);
+	    when(eventDao.findById(id)).thenReturn(Optional.of(evento)); // Mock correcto
 
-		// Llamar a la función
-		EventResponse detalles = eventServiceImpl.getReferenceById(id);
+	 // Llamar a la función
+	    EventResponse detalles = eventServiceImpl.getReferenceById(id);
 
-		// String esperado
-		String esperado = "El evento 'Test' se realiza en Madrid el dia 2024-01-01 a las 00:00";
+	    // Verificar los campos del objeto EventResponse
+	    assertEquals(id, detalles.getId());
+	    assertEquals("Test", detalles.getNombre());
+	    assertEquals(LocalDate.of(2024, 1, 1), detalles.getFechaEvento());
+	    assertEquals(LocalTime.of(0, 0), detalles.getHoraEvento());
+	    assertEquals(BigDecimal.valueOf(1), detalles.getPrecioMinimo());
+	    assertEquals(BigDecimal.valueOf(2), detalles.getPrecioMaximo());
+	    assertEquals(Localidad.Madrid, detalles.getLocalidad());
 
-		// Verificar el resultado
-		assertEquals(esperado, detalles);
-
-		// Verificar interacciones con el mock
-		verify(eventDao, times(1)).getReferenceById(id);
+	    // Verificar interacciones con el mock
+	    verify(eventDao, times(1)).findById(id);
 	}
 
 	@Test

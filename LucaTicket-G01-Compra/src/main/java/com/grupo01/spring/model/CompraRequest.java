@@ -1,6 +1,8 @@
 package com.grupo01.spring.model;
 
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 public class CompraRequest {
@@ -16,6 +18,7 @@ public class CompraRequest {
     private UUID eventId;
 
     @NotNull
+    @Valid
     private BancoRequest bancoRequest;
 
     // Getters and Setters
