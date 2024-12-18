@@ -147,7 +147,7 @@ public class CompraServiceTest {
 
         // Verifica la respuesta
         assertNotNull(response);
-        assertEquals("Compra validada con éxito", response.getMessage());
+        assertEquals("Compra realizada con éxito", response.getMessage()[0]);
         assertNotNull(response.getInfo());
 
         // Verifica interacciones
