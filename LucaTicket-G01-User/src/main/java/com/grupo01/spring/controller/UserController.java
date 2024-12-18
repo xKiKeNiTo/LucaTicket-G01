@@ -2,9 +2,12 @@ package com.grupo01.spring.controller;
 
 import com.grupo01.spring.model.UserRequest;
 import com.grupo01.spring.model.UserResponse;
-import com.grupo01.spring.service.UserServiceImpl;
+import com.grupo01.spring.service.UserService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 public class UserController {
     @Autowired
-    private UserServiceImpl userServiceImpl;
+    private UserService userService;
 
 	/**
 	 * Endpoint para crear un nuevo usuario
@@ -27,7 +30,7 @@ public class UserController {
 		UserRequest userRequestDomain = new UserRequest(userRequest.getMail(), userRequest.getNombre(),
 				userRequest.getApellido(), userRequest.getContrasena());
 
-		UserResponse userResponseDomain = userServiceImpl.save(userRequestDomain);
+		UserResponse userResponseDomain = userService.save(userRequestDomain);
 
 		UserResponse userResponse = new UserResponse(userResponseDomain.getMail(), userResponseDomain.getNombre(),
 				userResponseDomain.getApellido(), userResponseDomain.getFechaAlta());
@@ -36,8 +39,8 @@ public class UserController {
 	}
 	
 	 @GetMapping("/findByMail")
-	    public ResponseEntity<UserResponse> findByMail(@RequestParam("mail") String mail) {
-	        UserResponse userResponse = userServiceImpl.findByMail(mail);
+	    public ResponseEntity<UserResponse> findByMail(@RequestParam("mail") @NotBlank @Email String mail) {
+	        UserResponse userResponse = userService.findByMail(mail);
 	        return ResponseEntity.ok(userResponse);
 	    }
 
