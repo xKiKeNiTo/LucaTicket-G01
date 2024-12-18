@@ -92,7 +92,7 @@ public class EventControllerRestAssuredTest {
 
 	@Test
 	public void debeDevolverDetallesEvento() {
-		String id = "7e3b390b-671c-499b-b9c5-40f80dc2547e";
+		String id = "2b0a1503-dfed-4f73-b0bd-a8d7e7e11fd2";
 
 		  // Datos simulados de EventResponse
 	    String nombre = "Concierto de Jazz";
@@ -120,7 +120,7 @@ public class EventControllerRestAssuredTest {
 
 	@Test
     public void debeModificarEvento() {
-        String id = "28fb994c-2ef1-4045-8f6c-49610e824b65";
+        String id = "2b0a1503-dfed-4f73-b0bd-a8d7e7e11fd2";
 
         // JSON de evento actualizado
         String eventoActualizadoJson = """
