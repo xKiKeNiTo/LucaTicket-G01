@@ -12,6 +12,4 @@ public interface CompraService {
 	CompraResponse registrarCompra(CompraRequest compraRequest);
 
 	Map<String, Object> listarComprasPorCorreo(String mail);
-
-	BigDecimal calcularPrecioPromedioPorEvento(UUID idEvent);
 }

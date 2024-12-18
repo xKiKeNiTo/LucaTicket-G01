@@ -16,6 +16,9 @@ public interface CompraRepository extends JpaRepository<Compra, UUID> {
 	
 	List<Compra> findAllByUserMail(String mail);
 
-    @Query("SELECT AVG(o.precio) FROM order_history o WHERE o.id_evento = :idEvent")
-    BigDecimal calcularPrecioPromedioPorEvento(@Param("idEvento") UUID idEvent);
+    @Query("SELECT DISTINCT c.idEvent FROM Compra c")
+    List<UUID> findDistinctIdEventos(); // Devuelve IDs únicos de eventos con compras
+
+    @Query("SELECT AVG(c.precio) FROM Compra c WHERE c.idEvent = :evento")
+    BigDecimal calcularPrecioPromedioPorEvento(@Param("evento") UUID idEvent);
 }
