@@ -6,11 +6,13 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
 import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -20,6 +22,7 @@ import org.hibernate.metamodel.model.domain.AnyMappingDomainType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -39,8 +42,8 @@ import com.grupo01.spring.model.UserResponse;
 import com.grupo01.spring.repository.CompraRepository;
 
 /**
- * Clase CompraServiceTest Para probar las diferentes interacciones 
- * de la capa Service de Compras. 
+ * Clase CompraServiceTest Para probar las diferentes interacciones de la capa
+ * Service de Compras. 
  * 16/12/2024
  * @version 1
  * @author raul_
@@ -99,15 +102,18 @@ public class CompraServiceTest {
 			compraService.registrarCompra(compraRequest);
 		});
 
-		// Verificar el mensaje de la excepción
+		// Verifica el mensaje de la excepción
 		assertEquals("El banco rechazó la compra", exception.getMessage());
+
+		// Verifica que no se haya guardado en la base de datos
+		ArgumentCaptor<Compra> compraCaptor = ArgumentCaptor.forClass(Compra.class);
+		verify(compraRepository, never()).save(compraCaptor.capture()); // Nunca se debe llamar a save()
 
 		// Verificar interacciones
 		verify(bancoClient).autenticarUsuario(anyMap());
 		verify(userClient).getUserByEmail("test@ejemplo.com");
 		verify(eventClient).obtenerDetallesEvento(compraRequest.getEventId()); // Verifica llamada al cliente de eventos
 		verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
-		verifyNoInteractions(compraRepository); // No debe guardar en la base de datos si hay error
 	}
 
 	@Test
@@ -146,12 +152,16 @@ public class CompraServiceTest {
 
 		// Verifica el resultado
 		assertNotNull(response);
-		assertTrue(response.isSuccess());
-		assertEquals("Compra realizada con éxito", response.getMessage());
-		assertEquals("123456", response.getTransactionId());
-		assertNotNull(response.getAmount());
-		assertTrue(response.getAmount().compareTo(eventResponse.getPrecioMinimo()) >= 0);
-		assertTrue(response.getAmount().compareTo(eventResponse.getPrecioMaximo()) <= 0);
+		assertEquals("200", response.getStatus());
+		assertNull(response.getError());
+		assertNotNull(response.getMessage());
+		assertEquals("Compra realizada con éxito", response.getMessage()[0]);
+
+		// Verifica el contenedor de "info"
+		assertNotNull(response.getInfo());
+		assertEquals(bancoRequest.getNumeroTarjeta(), response.getInfo().getNumeroTarjeta());
+		assertEquals(bancoRequest.getCantidad(), response.getInfo().getCantidad());
+		assertEquals("Compra realizada con éxito", response.getMessage()[0]);
 
 		// Verifica interacciones
 		verify(bancoClient).autenticarUsuario(anyMap());
@@ -208,12 +218,9 @@ public class CompraServiceTest {
 
 		// Verifica la respuesta
 		assertNotNull(response);
-		assertTrue(response.isSuccess());
-		assertEquals("Compra realizada con éxito", response.getMessage());
-		assertEquals("123456", response.getTransactionId());
-		assertNotNull(response.getAmount());
-		assertTrue(response.getAmount().compareTo(mockEventResponse.getPrecioMinimo()) >= 0);
-		assertTrue(response.getAmount().compareTo(mockEventResponse.getPrecioMaximo()) <= 0);
+		assertEquals("200", response.getStatus());
+		assertEquals("Compra realizada con éxito", response.getMessage()[0]);
+		assertNotNull(response.getInfo());
 
 		// Verifica interacciones
 		verify(bancoClient).autenticarUsuario(anyMap());
@@ -222,5 +229,7 @@ public class CompraServiceTest {
 		verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
 		verify(compraRepository).save(ArgumentMatchers.any(Compra.class));
 	}
+	
+
 
 }
