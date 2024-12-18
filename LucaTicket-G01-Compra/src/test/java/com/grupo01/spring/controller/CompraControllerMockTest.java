@@ -64,9 +64,9 @@ public class CompraControllerMockTest {
 				  }
 				}""";
 
-		mockMvc.perform(post("/compras/save").content(compraValida).contentType("application/json"))
-				.andExpect(status().isCreated());
-	}
+        mockMvc.perform(post("/compras/save").content(compraValida).contentType("application/json"))
+                .andExpect(status().isCreated());
+    }
 
 	@Test
 	void debeListarComprasPorCorreoCuandoCorreoEsValido() throws Exception {
