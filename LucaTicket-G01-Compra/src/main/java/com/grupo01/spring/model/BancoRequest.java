@@ -32,7 +32,6 @@ public class BancoRequest {
 
 	private String concepto;
 
-	@NotNull(message = "La cantidad no puede ser nula.")
 	@Positive(message = "La cantidad debe ser mayor a 0.")
 	private BigDecimal cantidad;
 

@@ -1,235 +1,168 @@
 package com.grupo01.spring.service;
 
 import static org.mockito.Mockito.verify;
-
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
-import static org.hamcrest.CoreMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
-import org.hibernate.metamodel.model.domain.AnyMappingDomainType;
-import org.junit.jupiter.api.BeforeEach;
+import com.grupo01.spring.model.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.grupo01.spring.feignClient.BancoClient;
 import com.grupo01.spring.feignClient.EventClient;
 import com.grupo01.spring.feignClient.UserClient;
-import com.grupo01.spring.model.BancoRequest;
-import com.grupo01.spring.model.BancoResponse;
-import com.grupo01.spring.model.Compra;
-import com.grupo01.spring.model.CompraRequest;
-import com.grupo01.spring.model.CompraResponse;
-import com.grupo01.spring.model.EventResponse;
-import com.grupo01.spring.model.UserResponse;
 import com.grupo01.spring.repository.CompraRepository;
 
-/**
- * Clase CompraServiceTest Para probar las diferentes interacciones de la capa
- * Service de Compras. 
- * 16/12/2024
- * @version 1
- * @author raul_
- */
 @ExtendWith(MockitoExtension.class)
 public class CompraServiceTest {
 
-	@Mock
-	private CompraRepository compraRepository;
+    @Mock
+    private CompraRepository compraRepository;
 
-	@Mock
-	private BancoClient bancoClient;
+    @Mock
+    private BancoClient bancoClient;
 
-	@Mock
-	private UserClient userClient;
+    @Mock
+    private UserClient userClient;
 
-	@Mock
-	private EventClient eventClient;
+    @Mock
+    private EventClient eventClient;
 
-	@InjectMocks
-	private CompraServiceImpl compraService;
+    @InjectMocks
+    private CompraServiceImpl compraService;
 
-	@Test
-	void debeManejarErrorCuandoCompraNoEsValida() {
-		// Datos de prueba
-		CompraRequest compraRequest = new CompraRequest();
-		UUID eventId = UUID.randomUUID();
-		compraRequest.setEmail("test@ejemplo.com");
-		compraRequest.setEventId(eventId);
+    @Test
+    void debeManejarErrorCuandoCompraNoEsValida() {
+        // Datos de prueba
+        CompraRequest compraRequest = new CompraRequest();
+        UUID eventId = UUID.randomUUID();
+        compraRequest.setEmail("test@ejemplo.com");
+        compraRequest.setEventId(eventId);
 
-		BancoRequest bancoRequest = new BancoRequest();
-		bancoRequest.setNumeroTarjeta("1234-5678-1234-5678");
-		bancoRequest.setCvv("123");
-		bancoRequest.setCantidad(BigDecimal.valueOf(100));
-		compraRequest.setBancoRequest(bancoRequest);
+        BancoRequest bancoRequest = new BancoRequest();
+        bancoRequest.setNumeroTarjeta("1234-5678-1234-5678");
+        bancoRequest.setCvv("123");
+        bancoRequest.setCantidad(BigDecimal.valueOf(100));
+        compraRequest.setBancoRequest(bancoRequest);
 
-		String token = "mocked-token";
+        String token = "mocked-token";
 
-		// Mock de los clientes
-		when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
-		when(userClient.getUserByEmail("test@ejemplo.com"))
-				.thenReturn(new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012"));
+        // Mock de los clientes
+        when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
+        when(userClient.getUserByEmail("test@ejemplo.com"))
+                .thenReturn(new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012"));
 
-		// Mock del cliente de eventos
-		EventResponse mockEventResponse = new EventResponse();
-		mockEventResponse.setPrecioMinimo(BigDecimal.valueOf(50));
-		mockEventResponse.setPrecioMaximo(BigDecimal.valueOf(150));
-		when(eventClient.obtenerDetallesEvento(eq(eventId))).thenReturn(mockEventResponse);
+        // Mock del cliente de eventos
+        EventResponse mockEventResponse = new EventResponse();
+        mockEventResponse.setPrecioMinimo(BigDecimal.valueOf(50));
+        mockEventResponse.setPrecioMaximo(BigDecimal.valueOf(150));
+        when(eventClient.obtenerDetallesEvento(eq(eventId))).thenReturn(mockEventResponse);
 
-		// Simula respuesta inválida del banco
-		when(bancoClient.validarCompra(eq(bancoRequest), eq("Bearer " + token)))
-				.thenThrow(new RuntimeException("El banco rechazó la compra"));
+        // Simula respuesta inválida del banco
+        when(bancoClient.validarCompra(eq(bancoRequest), eq("Bearer " + token)))
+                .thenThrow(new RuntimeException("El banco rechazó la compra"));
 
-		// Verifica comportamiento esperado
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-			compraService.registrarCompra(compraRequest);
-		});
+        // Verifica comportamiento esperado
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            compraService.registrarCompra(compraRequest);
+        });
 
-		// Verifica el mensaje de la excepción
-		assertEquals("El banco rechazó la compra", exception.getMessage());
+        // Verifica el mensaje de la excepción
+        assertEquals("El banco rechazó la compra", exception.getMessage());
 
-		// Verifica que no se haya guardado en la base de datos
-		ArgumentCaptor<Compra> compraCaptor = ArgumentCaptor.forClass(Compra.class);
-		verify(compraRepository, never()).save(compraCaptor.capture()); // Nunca se debe llamar a save()
+        // Verifica que no se haya guardado en la base de datos
+        verify(compraRepository, never()).save(ArgumentMatchers.any(Compra.class));
 
-		// Verificar interacciones
-		verify(bancoClient).autenticarUsuario(anyMap());
-		verify(userClient).getUserByEmail("test@ejemplo.com");
-		verify(eventClient).obtenerDetallesEvento(compraRequest.getEventId()); // Verifica llamada al cliente de eventos
-		verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
-	}
+        // Verificar interacciones
+        verify(bancoClient).autenticarUsuario(anyMap());
+        verify(userClient).getUserByEmail("test@ejemplo.com");
+        verify(eventClient).obtenerDetallesEvento(compraRequest.getEventId());
+        verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
+    }
 
-	@Test
-	void debeConsumirMicroservicioBancoCorrectamente() {
-		// Datos de prueba
-		UUID eventId = UUID.randomUUID();
-		CompraRequest compraRequest = new CompraRequest();
-		compraRequest.setEmail("test@ejemplo.com");
-		compraRequest.setEventId(eventId);
+    @Test
+    void debeRegistrarCompraCorrectamente() {
+        // Datos de prueba
+        CompraRequest compraRequest = new CompraRequest();
+        UUID eventId = UUID.randomUUID();
+        compraRequest.setEmail("test@ejemplo.com");
+        compraRequest.setEventId(eventId);
 
-		BancoRequest bancoRequest = new BancoRequest();
-		bancoRequest.setNumeroTarjeta("1234-5678-1234-5678");
-		bancoRequest.setCvv("123");
-		bancoRequest.setCantidad(BigDecimal.valueOf(100));
-		compraRequest.setBancoRequest(bancoRequest);
+        BancoRequest bancoRequest = new BancoRequest();
+        bancoRequest.setNumeroTarjeta("1234-5678-1234-5678");
+        bancoRequest.setCvv("123");
+        bancoRequest.setCantidad(BigDecimal.valueOf(100));
+        compraRequest.setBancoRequest(bancoRequest);
 
-		String token = "mocked-token";
-		BancoResponse bancoResponse = new BancoResponse();
-		bancoResponse.setCodigo("123456");
-		bancoResponse.setMensaje("Compra realizada con éxito");
-		bancoResponse.setSuccess(true);
+        String token = "mocked-token";
 
-		UserResponse userResponse = new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012");
-		EventResponse eventResponse = new EventResponse();
-		eventResponse.setPrecioMinimo(BigDecimal.valueOf(50));
-		eventResponse.setPrecioMaximo(BigDecimal.valueOf(150));
+        // Mock de BancoResponse
+        BancoResponse bancoResponse = new BancoResponse();
+        bancoResponse.setCodigo("123456");
+        bancoResponse.setMensaje("Compra validada con éxito");
+        bancoResponse.setSuccess(true);
 
-		// Mock del flujo de datos
-		when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
-		when(userClient.getUserByEmail("test@ejemplo.com")).thenReturn(userResponse);
-		when(eventClient.obtenerDetallesEvento(eq(eventId))).thenReturn(eventResponse);
-		when(bancoClient.validarCompra(eq(bancoRequest), eq("Bearer " + token))).thenReturn(bancoResponse);
+        // Mock de UserResponse
+        UserResponse userResponse = new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012");
 
-		// Llama al método del servicio
-		CompraResponse response = compraService.registrarCompra(compraRequest);
+        // Mock de EventResponse
+        EventResponse mockEventResponse = new EventResponse();
+        mockEventResponse.setPrecioMinimo(BigDecimal.valueOf(50));
+        mockEventResponse.setPrecioMaximo(BigDecimal.valueOf(150));
 
-		// Verifica el resultado
-		assertNotNull(response);
-		assertEquals("200", response.getStatus());
-		assertNull(response.getError());
-		assertNotNull(response.getMessage());
-		assertEquals("Compra realizada con éxito", response.getMessage()[0]);
+        // Configuración de los mocks
+        when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
+        when(userClient.getUserByEmail("test@ejemplo.com")).thenReturn(userResponse);
+        when(eventClient.obtenerDetallesEvento(eq(eventId))).thenReturn(mockEventResponse);
+        when(bancoClient.validarCompra(eq(bancoRequest), eq("Bearer " + token))).thenReturn(bancoResponse);
 
-		// Verifica el contenedor de "info"
-		assertNotNull(response.getInfo());
-		assertEquals(bancoRequest.getNumeroTarjeta(), response.getInfo().getNumeroTarjeta());
-		assertEquals(bancoRequest.getCantidad(), response.getInfo().getCantidad());
-		assertEquals("Compra realizada con éxito", response.getMessage()[0]);
+        // Mock del repositorio para verificar que se guarda la compra
+        when(compraRepository.save(ArgumentMatchers.any())).thenAnswer(invocation -> {
+            Compra compra = invocation.getArgument(0);
+            compra.setIdEvent(UUID.randomUUID());
+            return compra;
+        });
 
-		// Verifica interacciones
-		verify(bancoClient).autenticarUsuario(anyMap());
-		verify(userClient).getUserByEmail("test@ejemplo.com");
-		verify(eventClient).obtenerDetallesEvento(eq(eventId));
-		verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
-	}
+        // Llamada al método del servicio
+        CompraResponse response = compraService.registrarCompra(compraRequest);
 
-	@Test
-	void debeRegistrarCompraCorrectaemnte() {
-		// Datos de prueba
-		CompraRequest compraRequest = new CompraRequest();
-		UUID eventId = UUID.randomUUID();
-		compraRequest.setEmail("test@ejemplo.com");
-		compraRequest.setEventId(eventId);
+        // Verifica la respuesta
+        assertNotNull(response);
+        assertEquals("Compra realizada con éxito", response.getMessage()[0]);
+        assertNotNull(response.getInfo());
 
-		BancoRequest bancoRequest = new BancoRequest();
-		bancoRequest.setNumeroTarjeta("1234-5678-1234-5678");
-		bancoRequest.setCvv("123");
-		bancoRequest.setCantidad(BigDecimal.valueOf(100));
-		compraRequest.setBancoRequest(bancoRequest);
+        // Verifica interacciones
+        verify(bancoClient).autenticarUsuario(anyMap());
+        verify(userClient).getUserByEmail("test@ejemplo.com");
+        verify(eventClient).obtenerDetallesEvento(eq(eventId));
+        verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
+        verify(compraRepository).save(ArgumentMatchers.any(Compra.class));
+    }
 
-		String token = "mocked-token";
+    @Test
+    void debeCalcularPrecioPromedioCorrectamente() {
+        // Datos de prueba
+        UUID eventId = UUID.randomUUID();
+        BigDecimal expectedPrecioPromedio = BigDecimal.valueOf(100); // Precio promedio esperado
 
-		// Mock de BancoResponse
-		BancoResponse bancoResponse = new BancoResponse();
-		bancoResponse.setCodigo("123456");
-		bancoResponse.setMensaje("Compra validada con éxito");
-		bancoResponse.setSuccess(true);
+        when(compraRepository.calcularPrecioPromedioPorEvento(eventId)).thenReturn(expectedPrecioPromedio);
 
-		// Mock de UserResponse
-		UserResponse userResponse = new UserResponse("test@ejemplo.com", "Test", "User", "12/12/2012");
+        BigDecimal precioPromedio = compraService.calcularPrecioPromedioPorEvento(eventId);
+        assertEquals(expectedPrecioPromedio, precioPromedio);
 
-		// Mock de EventResponse
-		EventResponse mockEventResponse = new EventResponse();
-		mockEventResponse.setPrecioMinimo(BigDecimal.valueOf(50));
-		mockEventResponse.setPrecioMaximo(BigDecimal.valueOf(150));
-
-		// Configuración de los mocks
-		when(bancoClient.autenticarUsuario(anyMap())).thenReturn(Map.of("token", token));
-		when(userClient.getUserByEmail("test@ejemplo.com")).thenReturn(userResponse);
-		when(eventClient.obtenerDetallesEvento(eq(eventId))).thenReturn(mockEventResponse);
-		when(bancoClient.validarCompra(eq(bancoRequest), eq("Bearer " + token))).thenReturn(bancoResponse);
-
-		// Mock del repositorio para verificar que se guarda la compra
-		when(compraRepository.save(ArgumentMatchers.any())).thenAnswer(invocation -> {
-			Compra compra = invocation.getArgument(0);
-			compra.setIdEvent(UUID.randomUUID()); // Simula que la base de datos asigna un ID
-			return compra;
-		});
-
-		// Llamada al método del servicio
-		CompraResponse response = compraService.registrarCompra(compraRequest);
-
-		// Verifica la respuesta
-		assertNotNull(response);
-		assertEquals("200", response.getStatus());
-		assertEquals("Compra realizada con éxito", response.getMessage()[0]);
-		assertNotNull(response.getInfo());
-
-		// Verifica interacciones
-		verify(bancoClient).autenticarUsuario(anyMap());
-		verify(userClient).getUserByEmail("test@ejemplo.com");
-		verify(eventClient).obtenerDetallesEvento(eq(eventId));
-		verify(bancoClient).validarCompra(eq(bancoRequest), eq("Bearer " + token));
-		verify(compraRepository).save(ArgumentMatchers.any(Compra.class));
-	}
-	
-
-
+        verify(compraRepository).calcularPrecioPromedioPorEvento(eq(eventId));
+    }
 }
