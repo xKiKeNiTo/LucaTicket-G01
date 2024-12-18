@@ -6,9 +6,12 @@ import com.grupo01.spring.feignClient.UserClient;
 import com.grupo01.spring.model.*;
 import com.grupo01.spring.repository.CompraRepository;
 
+import com.grupo01.spring.repository.HistoricoVentasRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,14 +27,16 @@ public class CompraServiceImpl implements CompraService {
 
 	private final BancoClient bancoClient;
 	private final CompraRepository compraRepository;
+	private final HistoricoVentasRepository historicoVentasRepository;
 	private final UserClient userClient;
 	private final EventClient eventClient;
 
-	public CompraServiceImpl(BancoClient bancoClient, CompraRepository compraRepository, UserClient userClient,
-			EventClient eventClient) {
+	public CompraServiceImpl(BancoClient bancoClient, CompraRepository compraRepository, HistoricoVentasRepository historicoVentasRepository, UserClient userClient,
+                             EventClient eventClient) {
 		this.bancoClient = bancoClient;
 		this.compraRepository = compraRepository;
-		this.userClient = userClient;
+        this.historicoVentasRepository = historicoVentasRepository;
+        this.userClient = userClient;
 		this.eventClient = eventClient;
 	}
 
@@ -147,10 +152,6 @@ public class CompraServiceImpl implements CompraService {
 	    return respuesta;
 	}
 
-
-
-
-
 	private BigDecimal generateRandomPrice(BigDecimal min, BigDecimal max) {
 		Random random = new Random();
 		BigDecimal randomValue = min.add(BigDecimal.valueOf(random.nextDouble()).multiply(max.subtract(min)));
@@ -173,5 +174,44 @@ public class CompraServiceImpl implements CompraService {
 		} catch (ResponseStatusException ex) {
 			throw ex;
 		}
+	}
+
+	@Transactional
+	@Scheduled(fixedRate = 10000) // Ejecuta cada 60 segundos
+	public void ejecutarBatchGenerarDatosVenta() {
+		logger.info("Inicio del batch para actualizar datos de ventas...");
+
+		// Obtener todos los eventos de la tabla de compras
+		List<UUID> eventos = compraRepository.findDistinctIdEventos();
+
+		logger.info("UIDDs encontrados: {}",eventos);
+
+		for (UUID id : eventos) {
+			try {
+				// Verificar si el evento ya existe en la tabla historicoVentas
+				Optional<HistoricoVentas> optionalHistorico = historicoVentasRepository.findByIdEvent(id);
+
+				if (optionalHistorico.isPresent()) {
+					// Si existe, se realiza un update
+					HistoricoVentas historicoVentas = optionalHistorico.get();
+					// Actualizar los datos según sea necesario, por ejemplo, precio medio
+					historicoVentas.setPrecioMedio(historicoVentasRepository.calcularPrecioPromedioPorEvento(id));
+					historicoVentas.setTimestamp(LocalDateTime.now()); // Si necesitas actualizar el timestamp
+					historicoVentasRepository.save(historicoVentas);
+				} else {
+					// Si no existe, se crea un nuevo registro
+					HistoricoVentas nuevoHistorico = new HistoricoVentas();
+					nuevoHistorico.setIdEvent(id);
+					nuevoHistorico.setPrecioMedio(historicoVentasRepository.calcularPrecioPromedioPorEvento(id));
+					nuevoHistorico.setTimestamp(LocalDateTime.now());
+					historicoVentasRepository.save(nuevoHistorico);
+				}
+			} catch (Exception e) {
+				// Log el error en caso de que ocurra alguna excepción
+				logger.error("Error inesperado al actualizar el evento " + id, e);
+			}
+		}
+
+		logger.info("Batch finalizado.");
 	}
 }

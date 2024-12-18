@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class CompraController {
 	@PostMapping("/save")
 	public ResponseEntity<CompraResponse> realizarCompra(@Valid @RequestBody CompraRequest compraRequest) {
 		CompraResponse response = compraService.registrarCompra(compraRequest);
-		return ResponseEntity.ok(response);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 	@GetMapping("/compras")
@@ -31,7 +32,4 @@ public class CompraController {
 	    Map<String, Object> respuesta = compraService.listarComprasPorCorreo(mail);
 	    return ResponseEntity.ok(respuesta);
 	}
-
-
-	
 }
