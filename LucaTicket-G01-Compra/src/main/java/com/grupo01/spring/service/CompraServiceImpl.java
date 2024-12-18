@@ -28,123 +28,126 @@ public class CompraServiceImpl implements CompraService {
 	private final EventClient eventClient;
 
 	public CompraServiceImpl(BancoClient bancoClient, CompraRepository compraRepository, UserClient userClient,
-                             EventClient eventClient) {
+			EventClient eventClient) {
 		this.bancoClient = bancoClient;
 		this.compraRepository = compraRepository;
-        this.userClient = userClient;
+		this.userClient = userClient;
 		this.eventClient = eventClient;
 	}
 
 	@Override
 	public CompraResponse registrarCompra(CompraRequest compraRequest) {
-	    String token = validarUser();
+		String token = validarUser();
 
-	    // Validar usuario
-	    logger.info("Consultando datos del usuario con email: {}", compraRequest.getEmail());
-	    UserResponse userResponse;
-	    try {
-	        userResponse = userClient.getUserByEmail(compraRequest.getEmail());
-	        logger.info("Datos del usuario obtenidos: {}", userResponse);
-	    } catch (ResponseStatusException ex) {
-	        if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-	            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-	                    "Usuario no encontrado con email: " + compraRequest.getEmail());
-	        }
-	        throw ex;
-	    }
+		// Validar usuario
+		logger.info("Consultando datos del usuario con email: {}", compraRequest.getEmail());
+		UserResponse userResponse;
+		try {
+			userResponse = userClient.getUserByEmail(compraRequest.getEmail());
+			logger.info("Datos del usuario obtenidos: {}", userResponse);
+		} catch (ResponseStatusException ex) {
+			if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"Usuario no encontrado con email: " + compraRequest.getEmail());
+			}
+			throw ex;
+		}
 
-	    // Validar evento
-	    logger.info("Consultando datos del evento con ID: {}", compraRequest.getEventId());
-	    EventResponse eventResponse;
-	    try {
-	        eventResponse = eventClient.obtenerDetallesEvento(compraRequest.getEventId());
-	        logger.info("Detalles del evento obtenidos: {}", eventResponse);
-	    } catch (ResponseStatusException ex) {
-	        if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-	            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-	                    "Evento no encontrado con ID: " + compraRequest.getEventId());
-	        }
-	        throw ex;
-	    }
+		// Validar evento
+		logger.info("Consultando datos del evento con ID: {}", compraRequest.getEventId());
+		EventResponse eventResponse;
+		try {
+			eventResponse = eventClient.obtenerDetallesEvento(compraRequest.getEventId());
+			logger.info("Detalles del evento obtenidos: {}", eventResponse);
+		} catch (ResponseStatusException ex) {
+			if (ex.getStatusCode() == HttpStatus.NOT_FOUND) {
+				throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"Evento no encontrado con ID: " + compraRequest.getEventId());
+			}
+			throw ex;
+		}
 
-	    // Generar precio aleatorio
-	    BigDecimal ticketPrice = generateRandomPrice(eventResponse.getPrecioMinimo(), eventResponse.getPrecioMaximo());
-	    logger.info("Precio generado aleatoriamente para el evento: {}", ticketPrice);
+		// Verificar si ya existe una compra para este usuario y evento
+		boolean compraExistente = compraRepository.existsByUserMailAndIdEvent(userResponse.getMail(),
+				compraRequest.getEventId());
+		if (compraExistente) {
+			logger.warn("El usuario {} ya ha comprado el evento {}", userResponse.getMail(),
+					compraRequest.getEventId());
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "El usuario ya ha comprado este evento.");
+		}
 
-	    // Configurar valores en BancoRequest
-	    BancoRequest bancoRequest = compraRequest.getBancoRequest();
-	    bancoRequest.setCantidad(ticketPrice);
+		// Generar precio aleatorio
+		BigDecimal ticketPrice = generateRandomPrice(eventResponse.getPrecioMinimo(), eventResponse.getPrecioMaximo());
+		logger.info("Precio generado aleatoriamente para el evento: {}", ticketPrice);
 
-	    // Actualizar concepto con el nombre del evento
-	    String emisor = "LucaTic G01";
-	    logger.info("Respuesta completa del evento: {}", eventResponse);
-	    String concepto = "Compra de entradas para el evento: " + eventResponse.getNombreEvento();
-	    logger.info("Concepto generado para la compra: {}", concepto);
+		// Configurar valores en BancoRequest
+		BancoRequest bancoRequest = compraRequest.getBancoRequest();
+		bancoRequest.setCantidad(ticketPrice);
 
-	    // Validar compra con el banco
-	    BancoResponse bancoResponse = validarCompra(bancoRequest, token);
-	    logger.info("Validación del banco exitosa: {}", bancoResponse);
+		// Actualizar concepto con el nombre del evento
+		String emisor = "LucaTic G01";
+		logger.info("Respuesta completa del evento: {}", eventResponse);
+		String concepto = "Compra de entradas para el evento: " + eventResponse.getNombreEvento();
+		logger.info("Concepto generado para la compra: {}", concepto);
 
-	    // Crear y guardar la compra
-	    Compra compra = new Compra();
-	    compra.setIdEvent(compraRequest.getEventId());
-	    compra.setUserMail(userResponse.getMail());
-	    compra.setPrecio(ticketPrice);
-	    compra.setFechaCompra(LocalDateTime.now());
-	    compraRepository.save(compra);
-	    logger.info("Compra guardada en la base de datos: {}", compra);
+		// Validar compra con el banco
+		BancoResponse bancoResponse = validarCompra(bancoRequest, token);
+		logger.info("Validación del banco exitosa: {}", bancoResponse);
 
-	    // Crear el objeto "info" para la respuesta
-	    CompraResponse.Info info = new CompraResponse.Info(userResponse.getNombre(), bancoRequest.getNumeroTarjeta(),
-	            bancoRequest.getMesCaducidad(), bancoRequest.getYearCaducidad(), bancoRequest.getCvv(), emisor,
-	            concepto, ticketPrice);
+		// Crear y guardar la compra
+		Compra compra = new Compra();
+		compra.setIdEvent(compraRequest.getEventId());
+		compra.setUserMail(userResponse.getMail());
+		compra.setPrecio(ticketPrice);
+		compra.setFechaCompra(LocalDateTime.now());
+		compraRepository.save(compra);
+		logger.info("Compra guardada en la base de datos: {}", compra);
 
-	    logger.info("Creación de la respuesta de compra exitosa.");
-	    return new CompraResponse("200", null, new String[] { "Compra realizada con éxito" }, info,
-	            "Transacción completada correctamente.");
+		// Crear el objeto "info" para la respuesta
+		CompraResponse.Info info = new CompraResponse.Info(userResponse.getNombre(), bancoRequest.getNumeroTarjeta(),
+				bancoRequest.getMesCaducidad(), bancoRequest.getYearCaducidad(), bancoRequest.getCvv(), emisor,
+				concepto, ticketPrice);
+
+		logger.info("Creación de la respuesta de compra exitosa.");
+		return new CompraResponse("201", null, new String[] { "Compra realizada con éxito" }, info,
+				"Transacción completada correctamente.");
 	}
-
 
 	@Override
 	public Map<String, Object> listarComprasPorCorreo(String mail) {
-	    // Obtener todas las compras del repositorio
-	    List<Compra> compras = compraRepository.findAllByUserMail(mail);
+		// Obtener todas las compras del repositorio
+		List<Compra> compras = compraRepository.findAllByUserMail(mail);
 
-	    // Verificar si la lista está vacía
-	    if (compras.isEmpty()) {
-	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, 
-	            "No se encontraron compras para el correo: " + mail);
-	    }
+		// Verificar si la lista está vacía
+		if (compras.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+					"No se encontraron compras para el correo: " + mail);
+		}
 
-	    // Crear la lista de compras con concepto detallado y cantidad
-	    List<Map<String, Object>> detalleCompras = compras.stream()
-	            .map(compra -> {
-	                Map<String, Object> detalle = new LinkedHashMap<>();
-	                try {
-	                    // Obtener los detalles del evento utilizando EventClient
-	                    EventResponse eventResponse = eventClient.obtenerDetallesEvento(compra.getIdEvent());
-	                    String concepto = String.format(
-	                        "Compra de entradas para el evento: %s en %s, %s", 
-	                        eventResponse.getNombreEvento(), 
-	                        eventResponse.getLocalidad(),
-	                        eventResponse.getNombreRecinto()
-	                    );
-	                    detalle.put("concepto", concepto);
-	                } catch (Exception e) {
-	                    // Si falla, asignar un valor por defecto
-	                    detalle.put("concepto", "Compra de entradas para el evento: Desconocido");
-	                }
-	                detalle.put("cantidad", compra.getPrecio());
-	                return detalle;
-	            })
-	            .toList();
+		// Crear la lista de compras con concepto detallado y cantidad
+		List<Map<String, Object>> detalleCompras = compras.stream().map(compra -> {
+			Map<String, Object> detalle = new LinkedHashMap<>();
+			try {
+				// Obtener los detalles del evento utilizando EventClient
+				EventResponse eventResponse = eventClient.obtenerDetallesEvento(compra.getIdEvent());
+				String concepto = String.format("Compra de entradas para el evento: %s en %s, %s",
+						eventResponse.getNombreEvento(), eventResponse.getLocalidad(),
+						eventResponse.getNombreRecinto());
+				detalle.put("concepto", concepto);
+			} catch (Exception e) {
+				// Si falla, asignar un valor por defecto
+				detalle.put("concepto", "Compra de entradas para el evento: Desconocido");
+			}
+			detalle.put("cantidad", compra.getPrecio());
+			return detalle;
+		}).toList();
 
-	    Map<String, Object> respuesta = new LinkedHashMap<>();
-	    respuesta.put("mailComprador", mail);
-	    respuesta.put("totalCompras", compras.size());
-	    respuesta.put("compras", detalleCompras);
+		Map<String, Object> respuesta = new LinkedHashMap<>();
+		respuesta.put("mailComprador", mail);
+		respuesta.put("totalCompras", compras.size());
+		respuesta.put("compras", detalleCompras);
 
-	    return respuesta;
+		return respuesta;
 	}
 
 	private BigDecimal generateRandomPrice(BigDecimal min, BigDecimal max) {
@@ -153,7 +156,7 @@ public class CompraServiceImpl implements CompraService {
 		return randomValue.setScale(2, RoundingMode.HALF_UP);
 	}
 
-	public BigDecimal calcularPrecioPromedioPorEvento(UUID idEvent){
+	public BigDecimal calcularPrecioPromedioPorEvento(UUID idEvent) {
 		return compraRepository.calcularPrecioPromedioPorEvento(idEvent);
 	}
 
@@ -174,7 +177,5 @@ public class CompraServiceImpl implements CompraService {
 			throw ex;
 		}
 	}
-
-
 
 }
