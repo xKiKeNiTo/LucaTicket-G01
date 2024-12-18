@@ -74,7 +74,7 @@ public class CompraControllerMockTest {
                 }""";
 
         mockMvc.perform(post("/compras/save").content(compraValida).contentType("application/json"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
 //	@Test
