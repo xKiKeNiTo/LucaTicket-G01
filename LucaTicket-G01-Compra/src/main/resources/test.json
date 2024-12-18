@@ -1,0 +1,14 @@
+{
+	"mailComprador": "mail"
+    "totalCompras": x,
+    "compras": [
+        {
+			"concepto":"",
+			"cantidad":
+        },
+        {
+			"concepto":"",
+			"cantidad":
+        }
+    ]
+}

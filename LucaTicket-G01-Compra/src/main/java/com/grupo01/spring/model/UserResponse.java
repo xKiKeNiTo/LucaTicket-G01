@@ -25,8 +25,8 @@ public class UserResponse {
 
     public String getApellido() {
         return apellido;
-    }
-
+    }  
+    
     public void setApellido(String apellido) {
         this.apellido = apellido;
     }
@@ -38,8 +38,16 @@ public class UserResponse {
     public void setFechaAlta(String fechaAlta) {
         this.fechaAlta = fechaAlta;
     }
+        
+    public UserResponse(String mail, String nombre, String apellido, String fechaAlta) {
+		super();
+		this.mail = mail;
+		this.nombre = nombre;
+		this.apellido = apellido;
+		this.fechaAlta = fechaAlta;
+	}
 
-    @Override
+	@Override
 	public String toString() {
 		return "UserResponse [mail=" + mail + ", nombre=" + nombre + ", apellido=" + apellido + ", fechaAlta="
 				+ fechaAlta + "]";

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -16,6 +17,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +189,23 @@ public class GlobalExceptionHandler {
 		error.put("message", ex.getMessage());
 		error.put("code", HttpStatus.CONFLICT.value());
 		return new ResponseEntity<>(Map.of("errors", List.of(error)), HttpStatus.CONFLICT);
+	}
+
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
+		logger.error("Error capturado: {}", ex.getReason());
+
+		// Convertir HttpStatusCode a HttpStatus
+		HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+
+		Map<String, Object> errorResponse = new HashMap<>();
+		errorResponse.put("timestamp", LocalDateTime.now());
+		errorResponse.put("status", status.value());
+		errorResponse.put("error", status.getReasonPhrase());
+		errorResponse.put("message", List.of(ex.getReason()));
+		errorResponse.put("infoadicional", "Error en el procesamiento de la solicitud.");
+
+		return new ResponseEntity<>(Map.of("errors", List.of(errorResponse)), status);
 	}
 
 }

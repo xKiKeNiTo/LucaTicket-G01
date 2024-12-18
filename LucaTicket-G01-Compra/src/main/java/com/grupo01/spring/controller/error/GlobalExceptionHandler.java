@@ -4,9 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import feign.FeignException;
@@ -19,10 +23,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Clase para manejar excepciones globales en la aplicación. Captura y gestiona
@@ -200,6 +206,22 @@ public class GlobalExceptionHandler {
 		error.put("code", HttpStatus.BAD_REQUEST.value());
 
 		return new ResponseEntity<>(Map.of("errors", List.of(error)), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex) {
+		logger.error("Error capturado: {}", ex.getReason());
+
+		// Construir la respuesta de error en el formato deseado
+		Map<String, Object> errorResponse = new HashMap<>();
+		errorResponse.put("timestamp", LocalDateTime.now());
+		errorResponse.put("status", ex.getStatusCode().value());
+		errorResponse.put("error", ex.getStatusCode());
+		errorResponse.put("message", List.of(ex.getReason()));
+		errorResponse.put("infoadicional", "Error en el procesamiento de la solicitud.");
+
+		// No incluir la traza
+		return new ResponseEntity<>(Map.of("errors", List.of(errorResponse)), ex.getStatusCode());
 	}
 
 }
