@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnableScheduling
 @EnableFeignClients
-@EnableBatchProcessing
 public class LucaTicketG01CompraApplication {
 
 	public static void main(String[] args) {

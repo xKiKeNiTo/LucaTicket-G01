@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.grupo01.spring.model.*;
-import com.grupo01.spring.repository.HistoricoVentasRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -142,7 +141,7 @@ public class CompraServiceTest {
 
         // Verifica la respuesta
         assertNotNull(response);
-        assertEquals("Compra validada con éxito", response.getMessage());
+        assertEquals("Compra realizada con éxito", response.getMessage()[0]);
         assertNotNull(response.getInfo());
 
         // Verifica interacciones
@@ -166,5 +165,4 @@ public class CompraServiceTest {
 
         verify(compraRepository).calcularPrecioPromedioPorEvento(eq(eventId));
     }
-
 }
