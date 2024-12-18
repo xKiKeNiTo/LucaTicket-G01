@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import java.util.Optional;
@@ -107,5 +108,11 @@ public class EventServiceImpl implements EventService {
 			throw new RuntimeException("Evento con ID " + id + " no encontrado para eliminar.");
 		}
 	}
+	
+	@Override
+    @Transactional
+    public void actualizarPrecios(UUID idEvento, BigDecimal precioMinimo, BigDecimal precioMaximo) {
+        eventDao.actualizarPrecios(idEvento, precioMinimo, precioMaximo);
+    }
 
 }

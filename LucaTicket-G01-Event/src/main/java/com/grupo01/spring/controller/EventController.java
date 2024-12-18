@@ -6,10 +6,13 @@ import com.grupo01.spring.service.EventService;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +29,7 @@ import java.util.UUID;
 public class EventController {
 
 	private final EventService eventService;
-
+	
 	public EventController(EventService eventService) {
 		this.eventService = eventService;
 	}
@@ -130,5 +133,23 @@ public class EventController {
 	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 	    }
 	}	
+	
+	
+	@PutMapping("/actualizarPrecios")
+	public ResponseEntity<String> actualizarPrecios(@RequestParam UUID idEvento,
+	                                                @RequestParam BigDecimal precioMinimo,
+	                                                @RequestParam BigDecimal precioMaximo) {
+	    try {
+	        eventService.actualizarPrecios(idEvento, precioMinimo, precioMaximo);
+	        return ResponseEntity.ok("Precios actualizados correctamente.");
+	    } catch (EntityNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                .body("Evento no encontrado para el ID proporcionado.");
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Error al actualizar los precios del evento.");
+	    }
+	}
+
 	
 }

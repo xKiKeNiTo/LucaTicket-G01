@@ -66,6 +66,11 @@ public class EventResponse {
     public void setNombreRecinto(String nombreRecinto) {
         this.nombreRecinto = nombreRecinto;
     }
+    public EventResponse(String idEvento, BigDecimal precioMinimo, BigDecimal precioMaximo) {
+        this.idEvento = idEvento;
+        this.precioMinimo = precioMinimo;
+        this.precioMaximo = precioMaximo;
+    }
 
     @Override
     public String toString() {

@@ -2,8 +2,14 @@ package com.grupo01.spring.service;
 
 import com.grupo01.spring.model.EventRequest;
 import com.grupo01.spring.model.EventResponse;
+import com.grupo01.spring.repository.EventDao;
+
+import jakarta.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.yaml.snakeyaml.events.Event;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +35,9 @@ public interface EventService {
 	EventResponse getReferenceById(UUID id);
 
 	EventResponse updateEvent(UUID id, EventRequest eventoActualizado);
-	
+
 	EventResponse deleteEventById(UUID id);
+
+	void actualizarPrecios(UUID idEvento, BigDecimal precioMinimo, BigDecimal precioMaximo);
 
 }

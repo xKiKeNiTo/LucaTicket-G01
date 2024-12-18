@@ -1,6 +1,8 @@
 package com.grupo01.spring.config;
 
-import com.grupo01.spring.service.BatchServiceImpl;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -9,10 +11,30 @@ import org.springframework.stereotype.Component;
 public class ScheduledConfig {
 
     @Autowired
-    private BatchServiceImpl batchServiceImpl;
+    private JobLauncher jobLauncher;
 
-    @Scheduled(cron = "0 0 1 * * ?") // Ejecución diaria a la 1 AM
-    public void ejecutarProcesoBatch() {
-    	batchServiceImpl.procesarDatosVenta();
+    @Autowired
+    private Job jobVentaHistorico;
+
+    @Autowired
+    private Job jobActualizarEventos;
+
+    @Scheduled(cron = "0 0 1 * * ?") // Proceso diario a las 1:00 AM
+    public void ejecutarHistorico() {
+        try {
+            jobLauncher.run(jobVentaHistorico, new JobParameters());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Scheduled(cron = "0 30 1 * * ?") // Proceso diario a la 1:30 AM
+    public void ejecutarActualizarEventos() {
+        try {
+            jobLauncher.run(jobActualizarEventos, new JobParameters());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
+
