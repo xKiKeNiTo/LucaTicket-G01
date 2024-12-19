@@ -1,0 +1,1 @@
+newman run "C:\Users\raul_\eclipse-workspace\LucaTicket-G01\LucaTicket-G01-Compra\src\test\postman\REST API Compra.postman_collection.json" -e "C:\Users\raul_\eclipse-workspace\LucaTicket-G01\LucaTicket-G01-Compra\src\test\postman\development_environment.json" -d "C:\Users\raul_\eclipse-workspace\LucaTicket-G01\LucaTicket-G01-Compra\src\test\postman\emails.json"
