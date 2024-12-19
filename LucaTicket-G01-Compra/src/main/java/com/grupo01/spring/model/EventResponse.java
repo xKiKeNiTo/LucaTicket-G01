@@ -1,11 +1,12 @@
 package com.grupo01.spring.model;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EventResponse {
-    private String idEvento;
+    private UUID idEvento;
 
     @JsonProperty("nombre")
     private String nombreEvento;
@@ -18,7 +19,7 @@ public class EventResponse {
     private String nombreRecinto;
 
     // Getters
-    public String getIdEvento() {
+    public UUID getIdEvento() {
         return idEvento;
     }
 
@@ -43,7 +44,7 @@ public class EventResponse {
     }
 
     // Setters
-    public void setIdEvento(String idEvento) {
+    public void setIdEvento(UUID idEvento) {
         this.idEvento = idEvento;
     }
 
@@ -66,12 +67,15 @@ public class EventResponse {
     public void setNombreRecinto(String nombreRecinto) {
         this.nombreRecinto = nombreRecinto;
     }
-    public EventResponse(String idEvento, BigDecimal precioMinimo, BigDecimal precioMaximo) {
+    public EventResponse(UUID idEvento, BigDecimal precioMinimo, BigDecimal precioMaximo) {
         this.idEvento = idEvento;
         this.precioMinimo = precioMinimo;
         this.precioMaximo = precioMaximo;
     }
 
+    public EventResponse() {
+    	
+    }
     @Override
     public String toString() {
         return "EventResponse{" +
