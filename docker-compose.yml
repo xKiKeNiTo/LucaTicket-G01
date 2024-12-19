@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build:
+      context: ./LucaTicket-G01-EurekaServer
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+    environment:
+      SPRING_APPLICATION_NAME: eureka-server
+      SERVER_PORT: 8761
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka/"
+
+  compra-service:
+    build:
+      context: ./LucaTicket-G01-Compra
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    networks:
+      - app-network
+    volumes:
+      - ./LucaTicket-G01-Compra/certs/root.crt:/root/.postgresql/root.crt
+    environment:
+      SPRING_APPLICATION_NAME: compra-service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-lucasteam-5590.j77.aws-eu-central-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
+      SPRING_DATASOURCE_USERNAME: raul
+      SPRING_DATASOURCE_PASSWORD: EOlJiSIA49cs1PaPczy8Sw
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka/"
+
+  event-service:
+    build:
+      context: ./LucaTicket-G01-Event
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+    volumes:
+      - ./LucaTicket-G01-Event/certs/root.crt:/root/.postgresql/root.crt
+    environment:
+      SPRING_APPLICATION_NAME: event-service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-lucasteam-5590.j77.aws-eu-central-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
+      SPRING_DATASOURCE_USERNAME: raul
+      SPRING_DATASOURCE_PASSWORD: EOlJiSIA49cs1PaPczy8Sw
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka/"
+
+  user-service:
+    build:
+      context: ./LucaTicket-G01-User
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+    volumes:
+      - ./LucaTicket-G01-User/certs/root.crt:/root/.postgresql/root.crt
+    environment:
+      SPRING_APPLICATION_NAME: user-service
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-lucasteam-5590.j77.aws-eu-central-1.cockroachlabs.cloud:26257/defaultdb?sslmode=verify-full
+      SPRING_DATASOURCE_USERNAME: raul
+      SPRING_DATASOURCE_PASSWORD: EOlJiSIA49cs1PaPczy8Sw
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:8761/eureka/"
+
+networks:
+  app-network:
+    driver: bridge

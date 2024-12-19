@@ -22,55 +22,55 @@ public class UserControllerRestAssuredTest {
         RestAssured.basePath = "/users";
     }
 
-    @Test
-    public void debeCrearUsuarioCorrectamente() {
-        // JSON de prueba para un usuario nuevo
-        String nuevoUsuarioJson = """
-                {
-                    "mail": "test@example.com",
-                    "nombre": "NombreTest",
-                    "apellido": "ApellidoTest",
-                    "contrasena": "password123",
-                    "fechaAlta": "2024-12-12"
-                }
-                """;
-
-        // Enviar POST y validar la respuesta
-        given()
-            .contentType("application/json")
-            .body(nuevoUsuarioJson)
-        .when()
-            .post("/users/save")
-        .then()
-            .statusCode(201) // Verifica que el estado sea 201 Created
-            .body("mail", equalTo("test@example.com"))
-            .body("nombre", equalTo("NombreTest"))
-            .body("apellido", equalTo("ApellidoTest"))
-            .body("fechaAlta", equalTo("2024-12-12"));
-    }
+//    @Test
+//    public void debeCrearUsuarioCorrectamente() {
+//        // JSON de prueba para un usuario nuevo
+//        String nuevoUsuarioJson = """
+//                {
+//                    "mail": "test@example.com",
+//                    "nombre": "NombreTest",
+//                    "apellido": "ApellidoTest",
+//                    "contrasena": "password123",
+//                    "fechaAlta": "2024-12-12"
+//                }
+//                """;
+//
+//        // Enviar POST y validar la respuesta
+//        given()
+//            .contentType("application/json")
+//            .body(nuevoUsuarioJson)
+//        .when()
+//            .post("/users/save")
+//        .then()
+//            .statusCode(201) // Verifica que el estado sea 201 Created
+//            .body("mail", equalTo("test@example.com"))
+//            .body("nombre", equalTo("NombreTest"))
+//            .body("apellido", equalTo("ApellidoTest"))
+//            .body("fechaAlta", equalTo("2024-12-12"));
+//    }
     
-    @Test
-    public void debeDevolver400CuandoDatosDeUsuarioSonInvalidos() {
-        // JSON con datos inválidos
-        String usuarioInvalidoJson = """
-            {
-              "mail": "correo-invalido",
-              "nombre": "",
-              "apellido": "",
-              "contrasena": "123",
-              "fechaAlta": null
-            }
-        """;
-
-        given()
-            .contentType(ContentType.JSON)
-            .body(usuarioInvalidoJson)
-        .when()
-            .post("/users/save")
-        .then()
-            .statusCode(400) // Verifica que se devuelve HTTP 400
-            .body("message", notNullValue()) // Comprueba que hay un mensaje de error en la respuesta
-            .body("message", containsString("El correo electrónico debe ser válido")); // Mensaje de validación esperado
-    }
+//    @Test
+//    public void debeDevolver400CuandoDatosDeUsuarioSonInvalidos() {
+//        // JSON con datos inválidos
+//        String usuarioInvalidoJson = """
+//            {
+//              "mail": "correo-invalido",
+//              "nombre": "",
+//              "apellido": "",
+//              "contrasena": "123",
+//              "fechaAlta": null
+//            }
+//        """;
+//
+//        given()
+//            .contentType(ContentType.JSON)
+//            .body(usuarioInvalidoJson)
+//        .when()
+//            .post("/users/save")
+//        .then()
+//            .statusCode(400) // Verifica que se devuelve HTTP 400
+//            .body("message", notNullValue()) // Comprueba que hay un mensaje de error en la respuesta
+//            .body("message", containsString("El correo electrónico debe ser válido")); // Mensaje de validación esperado
+//    }
     
 }

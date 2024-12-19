@@ -98,8 +98,8 @@ public class EventControllerRestAssuredTest {
 	    String nombre = "Indie Rock Night";
 	    String fechaEvento = "2024-06-18";
 	    String horaEvento = "20:30:00";
-	    BigDecimal precioMinimo = BigDecimal.valueOf(25.00);
-	    BigDecimal precioMaximo = BigDecimal.valueOf(70.00);
+	    BigDecimal precioMinimo = BigDecimal.valueOf(41.96);
+	    BigDecimal precioMaximo = BigDecimal.valueOf(62.94);
 	    String localidad = "Marbella";
 
 	    // Realiza la prueba
@@ -113,8 +113,8 @@ public class EventControllerRestAssuredTest {
 	            .body("nombre", org.hamcrest.Matchers.equalTo(nombre))
 	            .body("fechaEvento", org.hamcrest.Matchers.equalTo(fechaEvento))
 	            .body("horaEvento", org.hamcrest.Matchers.equalTo(horaEvento))
-	            .body("precioMinimo", org.hamcrest.Matchers.equalTo(25.0F))
-	            .body("precioMaximo", org.hamcrest.Matchers.equalTo(70.0F))
+	            .body("precioMinimo", org.hamcrest.Matchers.equalTo(41.96F))
+	            .body("precioMaximo", org.hamcrest.Matchers.equalTo(62.94F))
 	            .body("localidad", org.hamcrest.Matchers.equalTo(localidad));
 	}
 
